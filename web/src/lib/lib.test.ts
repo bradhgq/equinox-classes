@@ -71,10 +71,11 @@ test("ics: escaping, folding and structure", () => {
     uid: "12293216@equinox-classes",
     title: "Book: Beats Ride · Wed 7:00 AM · Greenwich Ave",
     start: new Date("2026-10-06T09:00:00Z"),
-    durationMinutes: 15,
+    end: new Date("2026-10-06T09:15:00Z"),
     url: "https://www.equinox.com/groupfitness/classes/12293216",
     description: "Booking opens now.",
     location: "Equinox Greenwich Avenue, 97 Greenwich Avenue",
+    alertAtStart: true,
   };
   const ics = buildIcs(ev, new Date("2026-10-04T23:00:00Z"));
   assert.match(ics, /DTSTART:20261006T090000Z\r\n/);

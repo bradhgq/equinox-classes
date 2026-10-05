@@ -9,17 +9,19 @@ import { allClasses, CLEAR_LABEL, clearFilter, nothingPicked } from "./clear.ts"
 import { FILTER_TITLES, type FilterName, useSummaries } from "./useSummaries.ts";
 import { WhatPanel } from "./what/WhatPanel.tsx";
 import { WhenPanel } from "./when/WhenPanel.tsx";
-import { WherePanel } from "./where/WherePanel.tsx";
+import { type WhereIntent, WherePanel } from "./where/WherePanel.tsx";
 
 interface Props {
   open: FilterName | null;
   onClose: () => void;
   /** The app's toast, rendered inside the sheet while it's open. */
   toast?: ComponentChildren;
+  /** Where to start the Where picker (a city or search, from the first-run screen). */
+  whereIntent?: WhereIntent | null;
 }
 
-const PANELS: Record<FilterName, () => JSX.Element> = {
-  where: () => <WherePanel />,
+const PANELS: Record<FilterName, (whereIntent: WhereIntent | null | undefined) => JSX.Element> = {
+  where: (whereIntent) => <WherePanel intent={whereIntent} />,
   when: () => <WhenPanel />,
   what: () => <WhatPanel />,
 };
@@ -27,7 +29,7 @@ const PANELS: Record<FilterName, () => JSX.Element> = {
 const PICK_LABEL: Record<FilterName, string> = { where: "Pick a club", when: "", what: "Pick a class" };
 
 /** Phones and tablets: each filter in its own sheet. Changes apply live; the footer shows the count. */
-export function FilterSheets({ open, onClose, toast }: Props) {
+export function FilterSheets({ open, onClose, toast, whereIntent }: Props) {
   const { catalog, filters, update } = useFilters();
   const { results, loading } = useResults();
   const summaries = useSummaries();
@@ -38,8 +40,10 @@ export function FilterSheets({ open, onClose, toast }: Props) {
   const empty = nothingPicked(filters, catalog, open);
   const countText = stillLoading ? "Loading…" : `Show ${results.count.toLocaleString()} ${results.count === 1 ? "class" : "classes"}`;
   // What's default is "any class", so the footer offers Clear from there and Select all from nothing.
-  const showClear = open === "what" ? !empty : !summaries[open].empty;
-  const showSelectAll = open === "what" && !isAnyClass(filters, catalog) && empty;
+  // What has nothing to act on before a club is picked (critique r6, outside the round).
+  const hasClubs = !nothingPicked(filters, catalog, "where");
+  const showClear = open === "what" ? hasClubs && !empty : !summaries[open].empty;
+  const showSelectAll = open === "what" && hasClubs && !isAnyClass(filters, catalog) && empty;
 
   return (
     <Sheet
@@ -71,7 +75,7 @@ export function FilterSheets({ open, onClose, toast }: Props) {
         </>
       }
     >
-      {PANELS[open]()}
+      {PANELS[open](whereIntent)}
     </Sheet>
   );
 }

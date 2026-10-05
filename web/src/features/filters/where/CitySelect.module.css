@@ -1,0 +1,30 @@
+.wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: var(--tap);
+  padding: 0 var(--space-10) 0 var(--space-3);
+  border: var(--border) var(--color-fg);
+  border-radius: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: 600 16px/1 var(--family-text); /* 16px: iOS doesn't zoom the page on focus */
+  cursor: pointer;
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 2px;
+}
+
+.chevron {
+  position: absolute;
+  right: var(--space-3);
+  pointer-events: none;
+}

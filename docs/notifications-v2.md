@@ -68,17 +68,18 @@ accounts. It also teaches the "booking opens 26 h before" rule.
 **Built (2026-10-04): the calendar subscription, without presets yet.**
 
 - **Entry point:** a "Subscribe" button beside the result count opens a sheet. It shows the search
-  in words and the expected alerts per week, then Apple Calendar (`webcal://`), Google Calendar
+  in words and the expected classes per week, then Apple Calendar (`webcal://`), Google Calendar
   ("add by URL") and Copy link.
 - **Feed:** `GET /calendar.ics?<share query>` (`deploy/calendar.ts`, built from `web/src/lib/feed.ts`).
-  - It has one event per match **at the moment booking opens** (the same "Book: …" event as the
-    one-off reminder), with an alert at its start.
-  - Events sit at booking time, not class time, because the alert is the point: every calendar can
-    alert "at the time of the event", while a feed's own alarms are dropped by Google and, when
-    "Remove Alerts" is on, by Apple.
-  - No `alarm=` option yet.
+  - Each match is an event **at the class's real time** (owner, 2026-10-05). Its notes say when
+    booking opens and link to the class page. Cancelled classes stay in, marked "Cancelled:" with
+    `STATUS:CANCELLED`, so they don't just vanish.
+  - It has no alerts of its own; people set alerts for the calendar in their app.
+  - Booking-time alerts stay per class: the detail's "Remind me to book" event, at the moment
+    booking opens. Its alert fires "at the time of the event" in every calendar app. A feed's own
+    alarms would be dropped by Google, and by Apple when "Remove Alerts" is on.
 - **Guardrails:**
-  - Over 25 alerts a week, the sheet suggests narrowing with When or What.
+  - Over 25 classes a week, the sheet suggests narrowing with When or What.
   - Over 300 classes, it won't offer the feed at all.
   - The server caps a feed at 300 events.
 - **Still to do from v2a:** saved-search presets, then a per-preset subscribe.

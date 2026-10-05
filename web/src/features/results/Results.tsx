@@ -8,8 +8,9 @@ import type { ResultItem } from "../../lib/results.ts";
 import { useFilters } from "../../state/FiltersContext.tsx";
 import { isSettled, useResults } from "../../state/ResultsContext.tsx";
 import { FirstRun } from "../firstrun/FirstRun.tsx";
-import { SubscribeButton } from "../subscribe/SubscribeButton.tsx";
 import type { FilterName } from "../filters/useSummaries.ts";
+import type { WhereIntent } from "../filters/where/WherePanel.tsx";
+import { SubscribeButton } from "../subscribe/SubscribeButton.tsx";
 import { Agenda } from "./Agenda.tsx";
 import { ClubLoadError } from "./ClubLoadError.tsx";
 import { MetaLine } from "./MetaLine.tsx";
@@ -23,14 +24,16 @@ interface Props {
   onOpenClass: (item: ResultItem) => void;
   onRevealFilter: (filter: FilterName) => void;
   onSubscribe: () => void;
+  /** First run: open the Where picker on a city or in search. */
+  onStartPicking: (intent: Omit<WhereIntent, "nonce">) => void;
 }
 
 /** The main column: first run, loading, errors, nothing picked, no matches, or the agenda. */
-export function Results({ hasClubs, nowMs, onOpenClass, onRevealFilter, onSubscribe }: Props) {
+export function Results({ hasClubs, nowMs, onOpenClass, onRevealFilter, onSubscribe, onStartPicking }: Props) {
   const { catalog, filters, update } = useFilters();
   const { results, loading, failedIds, retry } = useResults();
   const holding = useSkeletonHold(loading);
-  if (!hasClubs) return <FirstRun />;
+  if (!hasClubs) return <FirstRun onStart={onStartPicking} />;
 
   if (isNoClass(filters)) {
     return (

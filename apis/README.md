@@ -116,11 +116,42 @@ Pacific (39), Central (9) and GMT Standard Time (4, London). `ianaTimeZone()` ma
   for "Book".
 - **The app:** "Equinox+" on iOS (App Store id `318815572`, bundle `com.equinoxfitness.Equinox`)
   and Android (`com.equinoxfitness.equinox`).
-- **No public deep link into the app.** There's no `apple-app-site-association` on
-  `www.equinox.com`, `equinox.com` or `equinoxplus.com`. `link.equinox.com` is a login page.
-  `equinox.onelink.me` serves an empty applinks list. Universal links can't open a specific class
-  in the app, and a custom URL scheme (if one exists) can't be verified without the app binary. If
-  that changes, the class-page link above is the natural place to hang it.
+- **Opening the app (checked 2026-10-05 from a link the app shares):**
+  - The app's share links are Branch.io short links such as `https://m.equinoxplus.com/EUmnhB9GWlb`.
+    That redirects to `https://equinoxplus.app.link/…`, which the app owns.
+  - **Universal links:** `m.equinoxplus.com` and `equinoxplus.app.link` serve an
+    `apple-app-site-association` for `55RJNWAZWA.com.equinoxfitness.Equinox` that claims **every
+    path** except `/e/*` and links with `$web_only=true`. `www.equinox.com` has none (404), so the
+    class-page link above always opens in the browser.
+  - **Android** resolves the same link to
+    `intent://open?…#Intent;scheme=eqxplusmobile;package=com.equinoxfitness.equinox;…`, so the
+    app's URL scheme is `eqxplusmobile://`, and Branch passes only a click id.
+  - **Which class a share link opens lives in Branch's link data.** The app fetches it after
+    opening. Desktop browsers land on `www.equinoxplus.com`; phones without the app get the App
+    Store. The app makes these links through Branch's API (`channel: API`).
+  - **The data is readable:** for link-preview crawlers (iMessage's
+    `facebookexternalhit/1.1 Facebot Twitterbot/1.0` agent), Branch puts the whole link data,
+    base64 JSON, in the `al:ios:url` meta tag's `link_click_id=link-<id>-<data>`. For the example
+    (checked 2026-10-05):
+    - `path: "classes"` and `classid: base64("class:5kdj8UPNPZDuMMfUiUykqH")`, a type-prefixed
+      content id;
+    - `$og_title: "Pilates Mat: Low Impact Work"`, an Equinox+ on-demand video, not a club class.
+    So the app routes on custom keys (`path` names the screen), not on the URL path.
+  - **Self-built links don't work (tested on an iPhone with the app, 2026-10-05).** Branch accepts
+    query parameters on the bare domain as link data (`https://m.equinoxplus.com/?$desktop_url=…`
+    redirects there). But a rebuilt `?path=classes&classid=<same id>` link did not open the class
+    that the original short link opens, and three guesses for a club class opened nothing.
+  - **Club classes can't be shared from the app** (no share button), so there's no club-class link
+    to decode. The next lead is the app's own traffic: what it requests when it opens a club class,
+    and the deep links inside its push notifications or notification inbox.
+  - **What we do today:** `https://m.equinoxplus.com/` opens the app on a phone that has it,
+    landing on its home screen, and goes to the App Store otherwise. That's `EQUINOX_APP_URL` in
+    `shared/links.ts`; the class detail offers it on phones.
+  - **The class page has no booking for a signed-out visitor:** on a phone,
+    `www.equinox.com/groupfitness/classes/{id}` shows details and marketing only, with no Book button
+    and no app link.
+  - Other dead ends: `equinox.com` and `equinoxplus.com` have no `apple-app-site-association`;
+    `link.equinox.com` is a login page; `equinox.onelink.me` serves an empty applinks list.
 - **Booking rules** ([equinox.com/bookingrules](https://www.equinox.com/bookingrules)):
   - Booking opens **26 hours before class start**.
   - Booking is closed **2:00–5:00 AM club-local** every day, so an opening that would land in that

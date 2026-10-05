@@ -7,7 +7,7 @@ import { searchPhrase } from "../../lib/filters/summary.ts";
 import { useFilters } from "../../state/FiltersContext.tsx";
 import { useResults } from "../../state/ResultsContext.tsx";
 import type { FilterName } from "../filters/useSummaries.ts";
-import { feedLinks, isLocalPreview } from "./subscribe.ts";
+import { feedLinks, previewScope } from "./subscribe.ts";
 import styles from "./SubscribeSheet.module.css";
 
 interface Props {
@@ -20,9 +20,9 @@ interface Props {
 }
 
 /**
- * "Subscribe in calendar" (notifications v2a): the current search as a calendar feed with an
- * event, and alert, the moment booking opens for each class. Busy searches get a nudge to
- * narrow down first; ones too big for a calendar can't be subscribed.
+ * "Subscribe in calendar" (notifications v2a): the current search as a calendar feed, each class
+ * at its real time. Busy searches get a nudge to narrow down first; ones too big for a calendar
+ * can't be subscribed. Booking-time reminders stay per class ("Remind me to book").
  */
 export function SubscribeSheet({ open, onClose, onRevealFilter, onNotice, toast }: Props) {
   const { catalog, filters } = useFilters();
@@ -30,6 +30,7 @@ export function SubscribeSheet({ open, onClose, onRevealFilter, onNotice, toast 
   if (!open) return null;
 
   const links = feedLinks(filters, catalog);
+  const scope = previewScope();
   const perWeek = Math.max(1, Math.round(results.count / catalog.weeks));
   const tooMany = results.count > FEED_MAX_EVENTS;
   const busy = !tooMany && perWeek > FEED_BUSY_PER_WEEK;
@@ -59,16 +60,21 @@ export function SubscribeSheet({ open, onClose, onRevealFilter, onNotice, toast 
 
   return (
     <Sheet open fit title="Subscribe in calendar" onClose={onClose} toast={toast} returnFocusKey="subscribe">
-      <p class={styles.lede}>A calendar alert the moment booking opens, for every class in this search. New classes show up as Equinox publishes them.</p>
+      {/* Too many: lead with the limit instead of promising a calendar (critique r6 L5). */}
+      <p class={styles.lede}>
+        {tooMany
+          ? "Too many classes for one calendar."
+          : "Every class in this search, in your calendar at the time it starts. It updates as Equinox adds classes or changes the schedule."}
+      </p>
 
       <p class={styles.search}>{searchPhrase(filters, catalog)}</p>
       <p class={styles.rate}>
-        {tooMany ? `${results.count.toLocaleString()} classes: too many for a calendar` : `About ${perWeek} ${perWeek === 1 ? "alert" : "alerts"} a week`}
+        {tooMany ? `${results.count.toLocaleString()} classes` : `About ${perWeek} ${perWeek === 1 ? "class" : "classes"} a week`}
       </p>
 
       {(busy || tooMany) && (
         <div class={styles.narrow}>
-          <p>{tooMany ? "Narrow it down to subscribe." : "That’s a lot of alerts. Narrow it down first?"}</p>
+          <p>{tooMany ? "Narrow it down to subscribe:" : "That’s a lot for one calendar. Narrow it down first?"}</p>
           <div class={styles.narrowActions}>
             <Button size="sm" onClick={() => narrow("when")}>
               When
@@ -99,13 +105,16 @@ export function SubscribeSheet({ open, onClose, onRevealFilter, onNotice, toast 
         </div>
       )}
 
-      <ol class={styles.notes}>
-        <li>Each alert is a 15-minute event when booking opens, 26 hours before class.</li>
-        <li>Apple Calendar: keep alerts on. If it asks, turn off “Remove Alerts”.</li>
-        <li>Google Calendar: in the calendar’s settings, add a notification at 0 minutes. Google refreshes about once a day.</li>
-        <li>It keeps this search: changing your filters later won’t change it.</li>
-        {isLocalPreview() && <li>Local preview: only calendars on this computer can reach it, not Google or your phone.</li>}
-      </ol>
+      {!tooMany && (
+        <ol class={styles.notes}>
+          <li>Each class’s notes say when booking opens, with a link to book.</li>
+          <li>For a nudge when booking opens, use “Remind me to book” on a class.</li>
+          <li>Google Calendar refreshes subscriptions about once a day.</li>
+          <li>It keeps this search: changing your filters later won’t change it.</li>
+          {scope === "computer" && <li>Local preview: only calendars on this computer can reach it, not Google or your phone.</li>}
+          {scope === "network" && <li>Preview on your network: Apple Calendar on devices on this Wi-Fi can reach it. Google can’t.</li>}
+        </ol>
+      )}
     </Sheet>
   );
 }

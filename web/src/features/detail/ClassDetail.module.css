@@ -43,6 +43,18 @@
   width: 100%;
 }
 
+.appLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.appNote {
+  margin-top: calc(-1 * var(--space-2));
+  font: var(--font-small);
+  color: var(--color-fg-2);
+}
+
 .menu {
   display: flex;
   flex-direction: column;

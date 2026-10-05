@@ -8,36 +8,39 @@ interface Props {
   title: string;
   /** Right-hand count, e.g. "13 of 13" or "4/wk". */
   meta?: string;
-  /** Derived "All" state of the group. */
-  state: "off" | "on" | "mixed";
-  onToggleAll: () => void;
-  /** Accessible name of the All checkbox, e.g. "All Downtown clubs". */
-  allLabel: string;
+  /**
+   * The header's "All" checkbox (What): ticked when every item is, a dash when some are.
+   * Without it (Where) the header only folds, and any bulk action lives inside the group.
+   */
+  all?: { state: "off" | "on" | "mixed"; onToggle: () => void; label: string };
   defaultOpen?: boolean;
   children: ComponentChildren;
 }
 
 /**
- * A foldable group in a checkbox list (owner round 3). The header's checkbox is
- * "All": ticked when every item is, a dash when some are; it ticks or unticks
- * them all. The rest of the header folds the group open or closed.
+ * A foldable group in a list (owner round 3). The title row is a heading and folds the group
+ * open or closed; it never wraps, and its chevron sits at the right edge (critique r6 H2, L1).
  */
-export function FoldGroup({ title, meta, state, onToggleAll, allLabel, defaultOpen = false, children }: Props) {
+export function FoldGroup({ title, meta, all, defaultOpen = false, children }: Props) {
   const [open, setOpen] = useState(defaultOpen);
   const bodyId = useId();
   return (
     <section class={styles.group}>
       <div class={styles.header}>
-        <label class={styles.check}>
-          <CheckBox checked={state === "on" ? true : state === "mixed" ? "mixed" : false} onChange={onToggleAll} label={allLabel} />
-        </label>
-        <button type="button" class={styles.fold} aria-expanded={open} aria-controls={bodyId} onClick={() => setOpen(!open)}>
-          <span class={styles.title}>{title}</span>
-          {meta && <span class={styles.meta}>{meta}</span>}
-          <Icon name="chevron-down" class={`${styles.chevron} ${open ? styles.open : ""}`} />
-        </button>
+        {all && (
+          <label class={styles.check}>
+            <CheckBox checked={all.state === "on" ? true : all.state === "mixed" ? "mixed" : false} onChange={all.onToggle} label={all.label} />
+          </label>
+        )}
+        <h3 class={styles.heading}>
+          <button type="button" class={styles.fold} aria-expanded={open} aria-controls={bodyId} onClick={() => setOpen(!open)}>
+            <span class={styles.title}>{title}</span>
+            {meta && <span class={styles.meta}>{meta}</span>}
+            <Icon name="chevron-down" class={`${styles.chevron} ${open ? styles.open : ""}`} />
+          </button>
+        </h3>
       </div>
-      <div id={bodyId} class={styles.body} hidden={!open}>
+      <div id={bodyId} class={`${styles.body} ${all ? "" : styles.flush}`} hidden={!open}>
         {children}
       </div>
     </section>

@@ -1,33 +1,50 @@
-// Where: city -> area -> club, as explicit ticks (handoff §5.3, owner round 3).
+// Where: the clubs you pick (owner round 6, docs/design/05-where-flow.md).
 //
 // - `clubs` holds the ticked clubs; they are exactly what shows.
-// - `cities` holds the cities whose clubs are listed (in play), even with nothing ticked.
-// - Group and city "All" states are derived from the ticks: on / mixed / off.
-// Clubs with no scheduled classes are left out of totals and bulk ticks.
+// - Cities and areas only help you find clubs. Picking a whole area or city is an explicit
+//   "Select all", never a side effect of looking at one.
+// Clubs with no scheduled classes are left out of totals and bulk picks.
 
 import type { City } from "../../../../shared/schema.ts";
-import { type Catalog, type ClubGroup, groupsOfCity } from "../catalog.ts";
-import { type ChipState, type Filters, stateOf, without, withItem } from "./types.ts";
+import { type Catalog, type ClubGroup, groupKeyOfClub, groupsOfCity } from "../catalog.ts";
+import type { Filters } from "./types.ts";
 
-export type { ChipState };
-
-/** Clubs worth listing and bulk-ticking: the ones with classes (plus any already ticked). */
+/** Clubs worth listing and bulk-picking: the ones with classes (plus any already ticked). */
 export function visibleIds(f: Filters, catalog: Catalog, ids: readonly string[]): string[] {
   return ids.filter((id) => (catalog.clubs.get(id)?.classCount ?? 0) > 0 || f.clubs.includes(id));
 }
 
-export function groupState(f: Filters, catalog: Catalog, group: ClubGroup): ChipState {
-  const ids = visibleIds(f, catalog, group.clubIds);
-  return stateOf(ids.filter((id) => f.clubs.includes(id)).length, ids.length);
-}
-
-export function cityState(f: Filters, catalog: Catalog, city: City): ChipState {
-  const ids = visibleIds(f, catalog, city.clubIds);
-  return stateOf(ids.filter((id) => f.clubs.includes(id)).length, ids.length);
-}
-
 export function tickedIn(f: Filters, ids: readonly string[]): string[] {
   return ids.filter((id) => f.clubs.includes(id));
+}
+
+/** Every listed club in the group is picked. */
+export function groupAllPicked(f: Filters, catalog: Catalog, group: ClubGroup): boolean {
+  const ids = visibleIds(f, catalog, group.clubIds);
+  return ids.length > 0 && ids.every((id) => f.clubs.includes(id));
+}
+
+/** A pick as "Your clubs" shows it: a whole area (or a city without areas) collapses into one token. */
+export type PickToken = { kind: "group"; group: ClubGroup; count: number } | { kind: "club"; id: string };
+
+/** Your picks, newest first (critique r6 M1). A fully picked group of 2+ clubs is one token. */
+export function pickTokens(f: Filters, catalog: Catalog): PickToken[] {
+  const out: PickToken[] = [];
+  const groupsSeen = new Set<string>();
+  for (const id of [...f.clubs].reverse()) {
+    const club = catalog.clubs.get(id);
+    const city = club && catalog.cities.get(club.city);
+    if (!club || !city) continue;
+    const group = groupsOfCity(city).find((g) => g.key === groupKeyOfClub(club));
+    const size = group ? visibleIds(f, catalog, group.clubIds).length : 0;
+    if (group && size > 1 && groupAllPicked(f, catalog, group)) {
+      if (!groupsSeen.has(group.key)) out.push({ kind: "group", group, count: size });
+      groupsSeen.add(group.key);
+    } else {
+      out.push({ kind: "club", id });
+    }
+  }
+  return out;
 }
 
 /** Ticked clubs with classes, in index order (city, then area, then name). */
@@ -41,61 +58,29 @@ export function effectiveClubIds(f: Filters, catalog: Catalog): string[] {
   return out;
 }
 
-/** Groups listed for the cities in play, in index order. */
-export function listedGroups(f: Filters, catalog: Catalog): ClubGroup[] {
-  return catalog.index.cities.filter((c) => f.cities.includes(c.slug)).flatMap((c) => groupsOfCity(c));
-}
-
-function tick(f: Filters, citySlug: string, ids: readonly string[]): Filters {
-  return { ...f, cities: withItem(f.cities, citySlug), clubs: [...f.clubs, ...ids.filter((id) => !f.clubs.includes(id))] };
-}
-
-function untick(f: Filters, ids: readonly string[]): Filters {
-  const drop = new Set(ids);
-  return { ...f, clubs: f.clubs.filter((id) => !drop.has(id)) };
-}
-
-/** City chip for a city without areas: nothing ticked -> tick all; otherwise remove the city. */
-export function toggleCity(f: Filters, catalog: Catalog, citySlug: string): Filters {
-  const city = catalog.cities.get(citySlug);
-  if (!city) return f;
-  if (cityState(f, catalog, city) === "off") return tick(f, citySlug, visibleIds(f, catalog, city.clubIds));
-  return removeCity(f, catalog, citySlug);
-}
-
-export function removeCity(f: Filters, catalog: Catalog, citySlug: string): Filters {
-  const city = catalog.cities.get(citySlug);
-  if (!city) return f;
-  return { ...untick(f, city.clubIds), cities: without(f.cities, citySlug) };
-}
-
-/** What AreaPopover does per area: tick all, untick all, or leave a partial pick alone. */
-export type AreaDecision = "all" | "none" | "keep";
-
-export function applyAreas(f: Filters, catalog: Catalog, citySlug: string, decisions: Record<string, AreaDecision>): Filters {
-  const city = catalog.cities.get(citySlug);
-  if (!city) return f;
-  let next = f;
-  for (const area of city.areas) {
-    const decision = decisions[area.slug] ?? "keep";
-    if (decision === "all") next = tick(next, citySlug, visibleIds(next, catalog, area.clubIds));
-    if (decision === "none") next = untick(next, area.clubIds);
-  }
-  // Nothing left ticked in the city: take it out of play.
-  return tickedIn(next, city.clubIds).length ? { ...next, cities: withItem(next.cities, citySlug) } : removeCity(next, catalog, citySlug);
+/** The city to show first: where most of your picks are, else the city with the most clubs. */
+export function defaultCity(f: Filters, catalog: Catalog): City {
+  const cities = catalog.index.cities;
+  const picks = (c: City) => tickedIn(f, c.clubIds).length;
+  return cities.reduce((best, c) => (picks(c) > picks(best) ? c : best), cities[0]);
 }
 
 export function toggleClub(f: Filters, catalog: Catalog, clubId: string): Filters {
-  const club = catalog.clubs.get(clubId);
-  if (!club) return f;
-  return f.clubs.includes(clubId) ? untick(f, [clubId]) : tick(f, club.city, [clubId]);
+  if (!catalog.clubs.has(clubId)) return f;
+  return { ...f, clubs: f.clubs.includes(clubId) ? f.clubs.filter((id) => id !== clubId) : [...f.clubs, clubId] };
 }
 
-/** A group's "All" checkbox: all ticked -> untick all; otherwise tick all. The city stays in play. */
-export function toggleGroup(f: Filters, catalog: Catalog, group: ClubGroup): Filters {
-  return groupState(f, catalog, group) === "on" ? untick(f, group.clubIds) : tick(f, group.citySlug, visibleIds(f, catalog, group.clubIds));
+/** "Select all 13": picks every listed club in the group. */
+export function selectGroup(f: Filters, catalog: Catalog, group: ClubGroup): Filters {
+  return { ...f, clubs: [...f.clubs, ...visibleIds(f, catalog, group.clubIds).filter((id) => !f.clubs.includes(id))] };
+}
+
+/** "Clear" on a group: unpicks all its clubs. */
+export function clearGroup(f: Filters, group: ClubGroup): Filters {
+  const drop = new Set(group.clubIds);
+  return { ...f, clubs: f.clubs.filter((id) => !drop.has(id)) };
 }
 
 export function clearWhere(f: Filters): Filters {
-  return { ...f, cities: [], clubs: [] };
+  return { ...f, clubs: [] };
 }

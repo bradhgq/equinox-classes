@@ -1,16 +1,21 @@
-// Calendar reminders (handoff §5.7, critique H5). The reminder *is* the event:
-// a 15-minute "Book: …" event at the moment booking opens, with an alarm at its
-// start. Google Calendar drops imported alarms but still applies its default
-// reminder near the event start, so the nudge lands close to the opening anyway.
+// Calendar text (RFC 5545) for two uses:
+// - the booking reminder (handoff §5.7, critique H5): one 15-minute "Book: …" event at the
+//   moment booking opens, with an alert at its start. Google drops imported alerts but still
+//   applies its default reminder near the event start, so the nudge lands close anyway;
+// - the subscription feed: classes at their real times (lib/feed.ts).
 
-export interface ReminderEvent {
+export interface CalendarEvent {
   uid: string;
   title: string;
   start: Date;
-  durationMinutes: number;
+  end: Date;
   url: string;
   description: string;
   location?: string;
+  /** Marked cancelled, for calendars that show it. */
+  cancelled?: boolean;
+  /** An alert at the event's start (the booking reminder). */
+  alertAtStart?: boolean;
 }
 
 /** 2026-10-06T09:00:00.000Z -> "20261006T090000Z" */
@@ -44,32 +49,27 @@ export function foldLine(line: string): string {
   return out.join("\r\n ");
 }
 
-/** One VEVENT, with its alarm at the event's start. */
-function eventLines(ev: ReminderEvent, stamp: Date): string[] {
-  const end = new Date(ev.start.getTime() + ev.durationMinutes * 60_000);
+function eventLines(ev: CalendarEvent, stamp: Date): string[] {
   return [
     "BEGIN:VEVENT",
     `UID:${ev.uid}`,
     `DTSTAMP:${icsUtc(stamp)}`,
     `DTSTART:${icsUtc(ev.start)}`,
-    `DTEND:${icsUtc(end)}`,
+    `DTEND:${icsUtc(ev.end)}`,
     `SUMMARY:${escapeText(ev.title)}`,
     `DESCRIPTION:${escapeText(ev.description)}`,
     ...(ev.location ? [`LOCATION:${escapeText(ev.location)}`] : []),
     `URL:${ev.url}`,
-    "BEGIN:VALARM",
-    "ACTION:DISPLAY",
-    `DESCRIPTION:${escapeText(ev.title)}`,
-    "TRIGGER:PT0M",
-    "END:VALARM",
+    ...(ev.cancelled ? ["STATUS:CANCELLED"] : []),
+    ...(ev.alertAtStart ? ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${escapeText(ev.title)}`, "TRIGGER:PT0M", "END:VALARM"] : []),
     "END:VEVENT",
   ];
 }
 
 const calendarText = (lines: string[]) => lines.map(foldLine).join("\r\n") + "\r\n";
 
-/** A single reminder, downloaded as a file. */
-export function buildIcs(ev: ReminderEvent, now: Date = new Date()): string {
+/** A single event, downloaded as a file (the booking reminder). */
+export function buildIcs(ev: CalendarEvent, now: Date = new Date()): string {
   return calendarText([
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -89,7 +89,7 @@ export interface CalendarMeta {
 }
 
 /** A subscribable calendar (the webcal feed): many events under one name. */
-export function buildCalendar(events: readonly ReminderEvent[], meta: CalendarMeta, stamp: Date): string {
+export function buildCalendar(events: readonly CalendarEvent[], meta: CalendarMeta, stamp: Date): string {
   return calendarText([
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -105,12 +105,11 @@ export function buildCalendar(events: readonly ReminderEvent[], meta: CalendarMe
   ]);
 }
 
-export function googleCalendarUrl(ev: ReminderEvent): string {
-  const end = new Date(ev.start.getTime() + ev.durationMinutes * 60_000);
+export function googleCalendarUrl(ev: CalendarEvent): string {
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: ev.title,
-    dates: `${icsUtc(ev.start)}/${icsUtc(end)}`,
+    dates: `${icsUtc(ev.start)}/${icsUtc(ev.end)}`,
     details: `${ev.description}\n\n${ev.url}`,
     ...(ev.location ? { location: ev.location } : {}),
   });

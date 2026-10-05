@@ -71,14 +71,21 @@ Stack: Preact + TypeScript + Vite, CSS Modules, no UI library. Shared types and 
 >     "Link copied" is true.
 >   - Tags are 10 px.
 >   - The footer's "Equinox's rule" links to equinox.com/bookingrules.
+> - **Where (owner round 6): see `05-where-flow.md`, which replaces §5.3 and the first-run city
+>   chips.** Clubs are the only thing you pick. A city or area tap never selects. "Select all 13"
+>   per area is explicit. The area popover is gone.
+> - **Class detail on phones:** an "Open the Equinox app" text button (the app's home screen; a
+>   class-level app link isn't possible, see `apis/README.md`).
 > - **Calendar subscription (notifications v2a):**
 >   - "Subscribe" (calendar icon, `sm` secondary) sits right of the result count in the meta line,
 >     disabled until every club has loaded.
 >   - It opens a `fit` sheet with:
 >     - the search in words;
->     - "About N alerts a week";
+>     - "About N classes a week";
 >     - Apple / Google buttons (Apple first on Apple devices) and Copy link;
->     - footnotes on alerts per app.
+>     - footnotes: booking time and link in each class's notes; "Remind me to book" for booking
+>       alerts; Google refreshes daily.
+>   - The feed shows classes at their real times; only "Remind me to book" uses booking time.
 >   - Busy (over 25 a week): a "narrow it down" line with When / What.
 >   - Over 300 classes: no subscribe buttons.
 >   - See `docs/notifications-v2.md`.

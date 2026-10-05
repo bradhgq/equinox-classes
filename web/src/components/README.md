@@ -12,7 +12,7 @@ knowledge here. Hover styles sit in `@media (hover: hover)` so taps never leave 
 - `ClampedText/`: paragraph clamped to a few lines, with MORE only when it really overflows.
 - `DayToggles/`: S M T W T F S toggles with arrow-key navigation.
 - `EmptyState/`: big headline + sentence + stacked actions (no matches, load errors).
-- `FoldGroup/`: foldable list group whose header checkbox is a tri-state "All" for its items.
+- `FoldGroup/`: foldable list group with either a tri-state "All" checkbox or a text action.
 - `Icon/`: the line-icon set.
 - `ListGroup/`: titled group inside a checkbox list ("DOWNTOWN · 13").
 - `Monogram/`: the "EC" mark, theme-aware.

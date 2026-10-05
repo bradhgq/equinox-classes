@@ -9,51 +9,52 @@ import { dayListLabel, shareSentence, whatSummary, whenSummary, whereSummary } f
 import { EMPTY_FILTERS, type Filters } from "./types.ts";
 import { allClasses, categoryState, clearWhat, isAnyClass, isNoClass, toggleCategory, toggleFamily } from "./what.ts";
 import { EMPTY_MEMORY, addRange, removeRange, setDays, toggleDay, updateRange } from "./when.ts";
-import { applyAreas, cityState, effectiveClubIds, groupState, toggleCity, toggleClub, toggleGroup } from "./where.ts";
+import { clearGroup, defaultCity, effectiveClubIds, groupAllPicked, pickTokens, selectGroup, toggleClub } from "./where.ts";
 
 /** Defaults the app starts from: nothing chosen yet, any class. */
 const base = (): Filters => allClasses(structuredClone(EMPTY_FILTERS), catalog);
 const DOWNTOWN: ClubGroup = { key: "new-york-downtown", name: "Downtown", citySlug: "new-york", clubIds: ["112", "113"] };
+const MIDTOWN: ClubGroup = { key: "new-york-midtown", name: "Midtown", citySlug: "new-york", clubIds: ["138"] };
 
 // --- Where ---------------------------------------------------------------------------
 
-test("a city without areas ticks all its clubs, and the chip toggles back off", () => {
-  const f = toggleCity(base(), catalog, "boston");
-  assert.deepEqual(effectiveClubIds(f, catalog), ["204", "205"]);
-  assert.equal(cityState(f, catalog, catalog.cities.get("boston")!), "on");
-  assert.deepEqual(effectiveClubIds(toggleCity(f, catalog, "boston"), catalog), []);
-});
-
-test("area popover: all / none / keep per area; nothing left removes the city", () => {
-  const ny = catalog.cities.get("new-york")!;
-  const both = applyAreas(base(), catalog, "new-york", { "new-york-downtown": "all", "new-york-midtown": "all" });
-  assert.equal(cityState(both, catalog, ny), "on");
-  const downtown = applyAreas(both, catalog, "new-york", { "new-york-midtown": "none" });
-  assert.equal(cityState(downtown, catalog, ny), "mixed");
-  assert.deepEqual(effectiveClubIds(downtown, catalog), ["112", "113"]);
-  const gone = applyAreas(downtown, catalog, "new-york", { "new-york-downtown": "none" });
-  assert.deepEqual(gone.cities, []);
-  assert.deepEqual(gone.clubs, []);
-});
-
-test("a group's All ticks every club; unticking All leaves none (city stays listed)", () => {
-  let f = toggleGroup(base(), catalog, DOWNTOWN);
-  assert.equal(groupState(f, catalog, DOWNTOWN), "on");
-  assert.deepEqual(effectiveClubIds(f, catalog), ["112", "113"]);
-  f = toggleClub(f, catalog, "113"); // untick one -> mixed
-  assert.equal(groupState(f, catalog, DOWNTOWN), "mixed");
-  f = toggleGroup(f, catalog, DOWNTOWN); // mixed -> all
-  assert.equal(groupState(f, catalog, DOWNTOWN), "on");
-  f = toggleGroup(f, catalog, DOWNTOWN); // all -> none
-  assert.equal(groupState(f, catalog, DOWNTOWN), "off");
-  assert.deepEqual(effectiveClubIds(f, catalog), []);
-  assert.deepEqual(f.cities, ["new-york"]);
-});
-
-test("ticking a club puts its city in play", () => {
-  const f = toggleClub(base(), catalog, "138");
-  assert.deepEqual(f.cities, ["new-york"]);
+test("picking clubs is the only selection: one tick, one club", () => {
+  let f = toggleClub(base(), catalog, "138");
   assert.deepEqual(effectiveClubIds(f, catalog), ["138"]);
+  f = toggleClub(f, catalog, "204"); // another city, same list
+  assert.deepEqual(effectiveClubIds(f, catalog), ["138", "204"]);
+  f = toggleClub(f, catalog, "138");
+  assert.deepEqual(effectiveClubIds(f, catalog), ["204"]);
+  assert.deepEqual(toggleClub(f, catalog, "nope"), f);
+});
+
+test("Select all picks a whole area explicitly; Clear unpicks just that area", () => {
+  let f = toggleClub(base(), catalog, "204");
+  f = selectGroup(f, catalog, DOWNTOWN);
+  assert.ok(groupAllPicked(f, catalog, DOWNTOWN));
+  assert.deepEqual(effectiveClubIds(f, catalog), ["112", "113", "204"]);
+  f = toggleClub(f, catalog, "113");
+  assert.ok(!groupAllPicked(f, catalog, DOWNTOWN));
+  f = clearGroup(f, DOWNTOWN);
+  assert.deepEqual(effectiveClubIds(f, catalog), ["204"]);
+});
+
+test("Your clubs: newest first, and a whole area is one token", () => {
+  let f = toggleClub(base(), catalog, "204");
+  f = selectGroup(f, catalog, DOWNTOWN);
+  f = toggleClub(f, catalog, "138"); // Midtown has one club: stays a club token
+  assert.deepEqual(
+    pickTokens(f, catalog).map((t) => (t.kind === "group" ? `${t.group.key}·${t.count}` : t.id)),
+    ["138", "new-york-downtown·2", "204"],
+  );
+  f = toggleClub(f, catalog, "113"); // Downtown no longer whole: its remaining club shows alone
+  assert.deepEqual(pickTokens(f, catalog).map((t) => (t.kind === "club" ? t.id : t.group.key)), ["138", "112", "204"]);
+});
+
+test("the city shown first is where most picks are, else the biggest city", () => {
+  assert.equal(defaultCity(base(), catalog).slug, "new-york");
+  const boston = toggleClub(toggleClub(toggleClub(base(), catalog, "204"), catalog, "205"), catalog, "138");
+  assert.equal(defaultCity(boston, catalog).slug, "boston");
 });
 
 // --- When ----------------------------------------------------------------------------
@@ -158,7 +159,7 @@ test("matching: days, ranges [start, end), whole categories and single families"
 test("encode is canonical and decode round-trips", () => {
   let f = toggleClub(base(), catalog, "112");
   f = toggleClub(f, catalog, "138");
-  f = toggleCity(f, catalog, "boston");
+  f = selectGroup(f, catalog, { key: "boston", name: "Boston", citySlug: "boston", clubIds: ["204", "205"] });
   let u = setDays(f, EMPTY_MEMORY, [1, 3, 6]);
   u = addRange(u.filters, u.memory, 1);
   u = updateRange(u.filters, u.memory, 6, 0, { start: 540, end: 780 });
@@ -169,9 +170,9 @@ test("encode is canonical and decode round-trips", () => {
 });
 
 test("encode examples", () => {
-  const ny = applyAreas(base(), catalog, "new-york", { "new-york-downtown": "all", "new-york-midtown": "all" });
+  const ny = selectGroup(selectGroup(base(), catalog, DOWNTOWN), catalog, MIDTOWN);
   assert.equal(encodeFilters(ny, catalog), "city=new-york");
-  const downtown = toggleGroup(base(), catalog, DOWNTOWN);
+  const downtown = selectGroup(base(), catalog, DOWNTOWN);
   assert.equal(encodeFilters(downtown, catalog), "area=new-york-downtown");
   let u = setDays(toggleClub(base(), catalog, "112"), EMPTY_MEMORY, [1, 3, 6]);
   for (const d of [1, 3]) u = addRange(u.filters, u.memory, d);
@@ -223,7 +224,7 @@ test("filter-bar summaries and the share sentence", () => {
   assert.deepEqual(whereSummary(base(), catalog), { empty: true, action: true, line1: "Choose clubs", line2: "" });
   assert.deepEqual(whatSummary(base(), catalog), { empty: true, line1: "Any class", line2: "" });
   assert.equal(whatSummary(clearWhat(base()), catalog).line1, "No classes");
-  const nyAll = applyAreas(base(), catalog, "new-york", { "new-york-downtown": "all", "new-york-midtown": "all" });
+  const nyAll = selectGroup(selectGroup(base(), catalog, DOWNTOWN), catalog, MIDTOWN);
   assert.deepEqual(whereSummary(nyAll, catalog), { empty: false, line1: "New York", line2: "All 3 clubs" });
-  assert.equal(shareSentence(toggleGroup(base(), catalog, DOWNTOWN), catalog), "Equinox classes that fit: New York (Downtown).");
+  assert.equal(shareSentence(selectGroup(base(), catalog, DOWNTOWN), catalog), "Equinox classes that fit: New York (Downtown).");
 });

@@ -7,9 +7,7 @@
 import type { TimeRange } from "../ranges.ts";
 
 export interface Filters {
-  /** Cities in play: their clubs are listed under Where (in play with nothing ticked is fine). */
-  cities: string[];
-  /** Ticked club ids: exactly the clubs whose classes show. */
+  /** Ticked club ids: exactly the clubs whose classes show. Cities and areas are only for finding them. */
   clubs: string[];
   /** Selected weekdays, Sunday = 0, ascending. Empty = any day. */
   days: number[];
@@ -23,7 +21,6 @@ export interface Filters {
 
 /** Nothing selected anywhere. (The app's default for What is "every category", set by the codec.) */
 export const EMPTY_FILTERS: Filters = {
-  cities: [],
   clubs: [],
   days: [],
   ranges: {},

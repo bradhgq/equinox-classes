@@ -14,3 +14,6 @@ export function useMediaQuery(query: string): boolean {
 
 /** Desktop layout: filter rail + results (handoff §3). */
 export const useIsDesktop = () => useMediaQuery("(min-width: 1024px)");
+
+/** Phones and tablets: where the Equinox app lives. */
+export const useIsTouch = () => useMediaQuery("(pointer: coarse)");

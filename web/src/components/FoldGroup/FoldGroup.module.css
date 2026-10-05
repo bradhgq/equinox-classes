@@ -5,6 +5,13 @@
   border-bottom: var(--border) var(--color-fg);
 }
 
+.heading {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: inherit;
+}
+
 /* 44 px tap target around the 20 px box, aligned with the list's left edge. */
 .check {
   position: relative;
@@ -17,7 +24,7 @@
 }
 
 .fold {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -57,6 +64,11 @@
 /* Items sit under the header's checkbox column, indented to show hierarchy. */
 .body {
   padding-left: 32px;
+}
+
+/* Without the checkbox column there's nothing to indent under. */
+.flush {
+  padding-left: 0;
 }
 
 /* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */

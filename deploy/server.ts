@@ -15,7 +15,7 @@ import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { createBrotliCompress, createGzip, gzipSync } from "node:zlib";
+import { brotliCompressSync, constants as zlibConstants, gzipSync } from "node:zlib";
 import { calendarFeed } from "./calendar.ts";
 
 const { values: args } = parseArgs({
@@ -82,6 +82,31 @@ function cacheControl(urlPath: string, ext: string): string {
   return "public, max-age=3600";
 }
 
+/**
+ * Compressed bodies, kept per file until it changes: the club files change twice a day and the
+ * assets never, so each is compressed once. Brotli runs at quality 5. The default, 11, cost about
+ * 300 ms per club file and made a 42-club load take over 30 s; at 5 the size stays within a few
+ * percent.
+ */
+const compressed = new Map<string, { mtimeMs: number; br?: Buffer; gzip?: Buffer }>();
+
+async function compressedBody(file: string, mtimeMs: number, encoding: "br" | "gzip"): Promise<Buffer> {
+  let entry = compressed.get(file);
+  if (!entry || entry.mtimeMs !== mtimeMs) {
+    entry = { mtimeMs };
+    compressed.set(file, entry);
+  }
+  const cached = entry[encoding];
+  if (cached) return cached;
+  const raw = await readFile(file);
+  const body =
+    encoding === "br"
+      ? brotliCompressSync(raw, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: raw.length } })
+      : gzipSync(raw);
+  entry[encoding] = body;
+  return body;
+}
+
 async function send(req: IncomingMessage, res: ServerResponse, file: string, urlPath: string) {
   const stat = statSync(file);
   const ext = extname(file);
@@ -115,10 +140,10 @@ async function send(req: IncomingMessage, res: ServerResponse, file: string, url
     return;
   }
   if (encoder) {
+    const body = await compressedBody(file, stat.mtimeMs, encoder);
     res.setHeader("Content-Encoding", encoder);
-    createReadStream(file)
-      .pipe(encoder === "br" ? createBrotliCompress() : createGzip())
-      .pipe(res);
+    res.setHeader("Content-Length", body.length);
+    res.end(body);
   } else {
     res.setHeader("Content-Length", stat.size);
     createReadStream(file).pipe(res);

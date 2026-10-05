@@ -1,0 +1,11 @@
+/* The bulk action sits under the area header, above the clubs it would pick. */
+.bulk {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  border-bottom: var(--border) var(--color-line);
+}
+
+.bulk > * {
+  margin-left: calc(-1 * var(--space-2)); /* line the text up with the club names' checkboxes */
+}

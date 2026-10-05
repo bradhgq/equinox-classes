@@ -8,9 +8,11 @@ interface Props {
   placeholder: string;
   label: string;
   onFocusChange?: (focused: boolean) => void;
+  /** Take focus when a sheet opens (Sheet focuses `[data-autofocus]`). */
+  autoFocus?: boolean;
 }
 
-export function SearchField({ value, onInput, placeholder, label, onFocusChange }: Props) {
+export function SearchField({ value, onInput, placeholder, label, onFocusChange, autoFocus }: Props) {
   const input = useRef<HTMLInputElement>(null);
   return (
     <div class={styles.field}>
@@ -24,6 +26,7 @@ export function SearchField({ value, onInput, placeholder, label, onFocusChange 
         spellcheck={false}
         aria-label={label}
         placeholder={placeholder}
+        data-autofocus={autoFocus || undefined}
         value={value}
         onInput={(e) => onInput((e.target as HTMLInputElement).value)}
         onFocus={() => onFocusChange?.(true)}

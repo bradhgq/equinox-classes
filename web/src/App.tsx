@@ -8,6 +8,7 @@ import { FilterBar } from "./features/filters/FilterBar.tsx";
 import { FilterRail } from "./features/filters/FilterRail.tsx";
 import { FilterSheets } from "./features/filters/FilterSheets.tsx";
 import type { FilterName } from "./features/filters/useSummaries.ts";
+import type { WhereIntent } from "./features/filters/where/WherePanel.tsx";
 import { Footer } from "./features/footer/Footer.tsx";
 import { Header } from "./features/header/Header.tsx";
 import { LoadError } from "./features/results/LoadError.tsx";
@@ -78,6 +79,7 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
   const [reveal, setReveal] = useState<{ panel: FilterName; nonce: number } | null>(null);
   const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
   const [subscribeOpen, setSubscribeOpen] = useState(false);
+  const [whereIntent, setWhereIntent] = useState<WhereIntent | null>(null);
 
   const share = async (shareButton: HTMLElement) => {
     const payload = buildSharePayload(filters, catalog);
@@ -88,6 +90,17 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
     if (outcome === "failed") setFallbackUrl(payload.url);
   };
   const revealFilter = (panel: FilterName) => (isDesktop ? setReveal({ panel, nonce: Date.now() }) : setSheet(panel));
+  // First run: open the Where picker on a city or in search; nothing is picked until you tick clubs.
+  const startPicking = (intent: Omit<WhereIntent, "nonce">) => {
+    const nonce = Date.now();
+    setWhereIntent({ ...intent, nonce });
+    if (isDesktop) setReveal({ panel: "where", nonce });
+    else setSheet("where");
+  };
+  const closeSheet = () => {
+    setSheet(null);
+    setWhereIntent(null); // a later open from the filter bar starts from your picks, not the old request
+  };
   const description = detail ? schedules.find((s) => s.clubId === detail.club.id)?.descriptions[String(detail.c.classId)] : undefined;
   const hasClubs = clubIds.length > 0;
   const modalOpen = (!isDesktop && sheet !== null) || detail !== null || fallbackUrl !== null || subscribeOpen;
@@ -99,21 +112,22 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
     [results, resultsWith, counts, loadedCount, failedIds, total, clubIds, retry],
   );
   const resultsView = (
-    <Results hasClubs={hasClubs} nowMs={nowMs} onOpenClass={setDetail} onRevealFilter={revealFilter} onSubscribe={() => setSubscribeOpen(true)} />
+    <Results hasClubs={hasClubs} nowMs={nowMs} onOpenClass={setDetail} onRevealFilter={revealFilter} onSubscribe={() => setSubscribeOpen(true)} onStartPicking={startPicking} />
   );
 
   return (
     <ResultsContext.Provider value={resultsApi}>
-      <a class={styles.skip} href="#results">
-        Skip to classes
-      </a>
-      {/* Everything behind a sheet is inert, so focus and screen readers stay in the sheet. */}
+      {/* Everything behind a sheet is inert, so focus and screen readers stay in the sheet.
+          The skip link is inside too, so it's out of reach while a sheet is open. */}
       <div class={styles.page} inert={modalOpen}>
+        <a class={styles.skip} href="#results">
+          Skip to classes
+        </a>
         <Header canShare={hasClubs} onShare={share} isDesktop={isDesktop} />
         <SharedBanner />
         {isDesktop ? (
           <div class={styles.desktop}>
-            <FilterRail reveal={reveal} />
+            <FilterRail reveal={reveal} whereIntent={whereIntent} />
             <main id="results" class={styles.results} tabIndex={-1}>
               {resultsView}
               <Footer generatedAt={catalog.index.generatedAt} nowMs={nowMs} />
@@ -129,7 +143,7 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
           </>
         )}
       </div>
-      {!isDesktop && <FilterSheets open={sheet} onClose={() => setSheet(null)} toast={inlineToast} />}
+      {!isDesktop && <FilterSheets open={sheet} onClose={closeSheet} toast={inlineToast} whereIntent={whereIntent} />}
       <ClassDetail
         key={detail ? `${detail.club.id}-${detail.c.classInstanceId}` : "none"}
         item={detail}

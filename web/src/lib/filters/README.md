@@ -2,7 +2,7 @@
 
 - `types.ts`: the `Filters` model (explicit selection: ticked = shown), tri-state helper, list
   helpers.
-- `where.ts`: ticked clubs; group / city All states; area popover decisions; toggles.
+- `where.ts`: picked clubs: toggle one, "Select all" or clear an area, the city to show first.
 - `when.ts`: day toggles, per-day ranges, "new day copies the last touched day", shortcuts.
 - `what.ts`: whole categories + individually ticked families; "any class" default; toggles.
 - `match.ts`: does a class pass When and What.

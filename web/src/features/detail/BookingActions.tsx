@@ -1,8 +1,9 @@
-import { useRef, useState } from "preact/hooks";
+import { useId, useRef, useState } from "preact/hooks";
 import { displayName } from "../../../../shared/families.ts";
-import { classUrl } from "../../../../shared/links.ts";
+import { classUrl, EQUINOX_APP_URL } from "../../../../shared/links.ts";
 import { Button } from "../../components/Button/Button.tsx";
 import { Popover } from "../../components/Popover/Popover.tsx";
+import { useIsTouch } from "../../hooks/useMediaQuery.ts";
 import type { BookingStatus } from "../../lib/booking.ts";
 import { downloadText, isApplePlatform } from "../../lib/download.ts";
 import { buildIcs, googleCalendarUrl } from "../../lib/ics.ts";
@@ -25,6 +26,8 @@ export function BookingActions({ item, status }: Props) {
   const name = displayName(c.name);
   const [menuOpen, setMenuOpen] = useState(false);
   const remindWrap = useRef<HTMLDivElement>(null);
+  const isTouch = useIsTouch();
+  const appNoteId = useId();
 
   const book = (variant: "primary" | "secondary") => (
     <Button
@@ -39,8 +42,27 @@ export function BookingActions({ item, status }: Props) {
     </Button>
   );
 
+  // Phones only. The app opens on its home screen, and the note says so where people can see it:
+  // a link to this class in the app isn't possible (apis/README.md; critique r6 M4).
+  const app = isTouch && (
+    <div class={styles.appLink}>
+      <Button variant="text" href={EQUINOX_APP_URL} target="_blank" rel="noopener" iconAfter="external" aria-describedby={appNoteId}>
+        Open the Equinox app
+      </Button>
+      <p id={appNoteId} class={styles.appNote}>
+        Opens the app’s home screen, not this class.
+      </p>
+    </div>
+  );
+
   if (c.isCancelled || status.state === "started") return <div class={styles.actions}>{book("secondary")}</div>;
-  if (status.state === "open") return <div class={styles.actions}>{book("primary")}</div>;
+  if (status.state === "open")
+    return (
+      <div class={styles.actions}>
+        {book("primary")}
+        {app}
+      </div>
+    );
 
   const ev = reminderEvent(item, status.opensAt);
   const opens = formatInZone(status.opensAt, club.timeZone);
@@ -54,6 +76,7 @@ export function BookingActions({ item, status }: Props) {
         </Button>
       </div>
       {book("secondary")}
+      {app}
       <Popover anchor={remindWrap.current} open={menuOpen} onClose={() => setMenuOpen(false)} label="Add reminder to">
         <div class={styles.menu}>
           <Button

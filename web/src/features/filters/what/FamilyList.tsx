@@ -89,9 +89,7 @@ export function FamilyList({ query }: { query: string }) {
             key={cat.id}
             title={cat.name}
             meta={`${ticked} of ${keys.length}`}
-            state={state}
-            allLabel={`All ${cat.name} classes`}
-            onToggleAll={() => update((f) => toggleCategory(f, catalog, cat.id, keys))}
+            all={{ state, label: `All ${cat.name} classes`, onToggle: () => update((f) => toggleCategory(f, catalog, cat.id, keys)) }}
             defaultOpen={state === "mixed"}
           >
             {fams.map((fam) => row(fam, countOf(fam.key) ? perWeekLabel(countOf(fam.key), weeks) : "Not scheduled", undefined, !countOf(fam.key)))}

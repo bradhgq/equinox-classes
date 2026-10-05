@@ -42,26 +42,27 @@ const schedule: ClubSchedule = {
 
 const NOW = new Date("2026-10-05T12:00:00Z");
 const { filters } = decodeFilters("club=greenwich-avenue&day=mo,tu,we,th,fr&time=6-9&cat=yoga", catalog);
+const events = (ics: string) => ics.split("BEGIN:VEVENT").slice(1);
 
-test("the feed holds exactly the page's matches, minus cancelled ones", () => {
-  const ids = feedItems(catalog, filters, [schedule], NOW.getTime()).map((i) => i.c.classInstanceId);
-  assert.deepEqual(ids, [1, 4]);
-  // Parity with the agenda: same classes, and the page's count already leaves out cancelled ones.
-  assert.equal(buildResults(catalog, filters, [schedule], NOW.getTime()).count, ids.length);
+test("the feed holds the page's matches, cancelled ones included and marked", () => {
+  const items = feedItems(catalog, filters, [schedule], NOW.getTime());
+  assert.deepEqual(items.map((i) => i.c.classInstanceId), [1, 4, 5]);
+  // Parity with the page's count, which leaves cancelled classes out.
+  assert.equal(buildResults(catalog, filters, [schedule], NOW.getTime()).count, items.filter((i) => !i.c.isCancelled).length);
 });
 
-test("each event starts when booking opens (26 h before), with an alert at its start", () => {
-  const ics = buildFeed(catalog, filters, [schedule], NOW);
-  const events = ics.split("BEGIN:VEVENT").slice(1);
-  assert.equal(events.length, 2);
-  // Tue 7:00 AM EDT (11:00Z) → booking opens Mon 5:00 AM EDT (09:00Z).
-  assert.match(events[0], /DTSTART:20261005T090000Z/);
-  assert.match(events[0], /DTEND:20261005T091500Z/);
-  assert.match(events[0], /SUMMARY:Book: Vinyasa Yoga · Tue 7:00 AM · Greenwich Ave/);
-  assert.match(events[0], /TRIGGER:PT0M/);
-  assert.match(events[0], /UID:1-booking@equinox-classes/);
-  // Thu 6:00 AM → 26 h earlier is Wed 4:00 AM, inside the 2–5 AM closure, so it opens at 5:00 AM.
-  assert.match(events[1], /DTSTART:20261007T090000Z/);
+test("each class sits at its real time, with booking time and link in the notes, and no alert", () => {
+  const [tue, thu, cancelled] = events(buildFeed(catalog, filters, [schedule], NOW));
+  assert.match(tue, /DTSTART:20261006T110000Z/);
+  assert.match(tue, /DTEND:20261006T120000Z/);
+  assert.match(tue, /SUMMARY:Vinyasa Yoga · Greenwich Ave/);
+  assert.match(tue, /UID:1@equinox-classes/);
+  assert.match(tue.replace(/\r\n /g, ""), /Booking opens Mon Oct 5\\, 5:00 AM\./);
+  assert.doesNotMatch(tue, /VALARM/);
+  // Thu 6:00 AM: 26 h earlier is Wed 4:00 AM, inside the 2–5 AM closure, so booking opens at 5:00 AM.
+  assert.match(thu.replace(/\r\n /g, ""), /Booking opens Wed Oct 7\\, 5:00 AM\./);
+  assert.match(cancelled, /SUMMARY:Cancelled: Vinyasa Yoga · Greenwich Ave/);
+  assert.match(cancelled, /STATUS:CANCELLED/);
 });
 
 test("the calendar is named after the search and is valid line-wise", () => {

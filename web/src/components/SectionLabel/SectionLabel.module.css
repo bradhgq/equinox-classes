@@ -7,6 +7,10 @@
   min-height: 24px;
 }
 
+.flush {
+  margin-top: 0;
+}
+
 .label {
   font: var(--font-mono-eyebrow);
   letter-spacing: var(--track-mono-eyebrow);

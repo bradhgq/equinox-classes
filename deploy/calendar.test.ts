@@ -41,11 +41,12 @@ function dataDir(): string {
 
 const NOW = new Date("2026-10-05T12:00:00Z");
 
-test("a share query becomes a feed of booking events, with a stable ETag", () => {
+test("a share query becomes a feed of its classes, with a stable ETag", () => {
   const dir = dataDir();
   const a = calendarFeed(dir, "club=greenwich-avenue&cat=cycling", NOW);
   assert.equal(a.body.split("BEGIN:VEVENT").length - 1, 1);
-  assert.match(a.body, /SUMMARY:Book: Beats Ride · Wed 6:30 PM · Greenwich Ave/);
+  assert.match(a.body, /SUMMARY:Beats Ride · Greenwich Ave/);
+  assert.match(a.body, /DTSTART:20261007T223000Z/);
   assert.equal(calendarFeed(dir, "club=greenwich-avenue&cat=cycling", NOW).etag, a.etag);
 });
 

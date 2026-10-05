@@ -22,5 +22,12 @@ export function feedLinks(filters: Filters, catalog: Catalog, page: string = loc
   return { https, webcal, google: `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}` };
 }
 
-/** Google and phones fetch the feed themselves, so a local preview only works for calendars on this computer. */
-export const isLocalPreview = (host: string = location.hostname) => /^(localhost|127\.\d+\.\d+\.\d+|\[::1\])$|\.local$/.test(host);
+/**
+ * Who can fetch a feed served from this host. Calendar apps fetch it themselves (Google from its
+ * own servers), so a preview on this computer or this network is out of reach for some of them.
+ */
+export function previewScope(host: string = location.hostname): "computer" | "network" | null {
+  if (/^(localhost|127\.\d+\.\d+\.\d+|\[::1\])$/.test(host)) return "computer";
+  if (/\.local$|^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(host)) return "network";
+  return null;
+}

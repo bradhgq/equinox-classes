@@ -9,7 +9,7 @@ interface Props {
   title: string;
   summary: Summary;
   defaultOpen: boolean;
-  /** Bumped by the parent to force-open and scroll to this panel. */
+  /** Bumped by the parent to force-open this panel, bring it into view and focus its `[data-autofocus]`. */
   revealNonce?: number;
   /** Header actions (Clear / Select all), decided by the rail. */
   actions?: ComponentChildren;
@@ -21,10 +21,15 @@ export function RailPanel({ id, title, summary, defaultOpen, revealNonce, action
   const [open, setOpen] = useState(defaultOpen);
   const root = useRef<HTMLElement>(null);
 
+  // Opening happens first; focus waits a frame until the body is no longer hidden (critique r6 H3).
   useEffect(() => {
     if (!revealNonce) return;
     setOpen(true);
-    root.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+    requestAnimationFrame(() => {
+      const panel = root.current;
+      panel?.scrollIntoView({ block: "nearest", behavior: "smooth" }); // no window jump when it's already in view
+      panel?.querySelector<HTMLElement>(`#${id}-body [data-autofocus]`)?.focus({ preventScroll: true });
+    });
   }, [revealNonce]);
 
   return (

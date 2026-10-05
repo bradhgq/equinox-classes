@@ -136,25 +136,24 @@ export function decodeFilters(query: string, catalog: Catalog): Decoded {
       .filter(Boolean);
   let f: Filters = { ...EMPTY_FILTERS, ranges: {} };
   let dropped = 0;
-  const tickAll = (citySlug: string, ids: readonly string[]) => {
-    f = { ...f, cities: withItem(f.cities, citySlug), clubs: [...f.clubs, ...visibleIds(f, catalog, ids).filter((id) => !f.clubs.includes(id))] };
+  const tickAll = (ids: readonly string[]) => {
+    f = { ...f, clubs: [...f.clubs, ...visibleIds(f, catalog, ids).filter((id) => !f.clubs.includes(id))] };
   };
 
   for (const slug of list("city")) {
     const city = catalog.cities.get(slug);
     if (!city) dropped++;
-    else tickAll(slug, city.clubIds);
+    else tickAll(city.clubIds);
   }
   for (const slug of list("area")) {
     const area = catalog.areas.get(slug);
-    const citySlug = catalog.areaCity.get(slug);
-    if (!area || !citySlug) dropped++;
-    else tickAll(citySlug, area.clubIds);
+    if (!area) dropped++;
+    else tickAll(area.clubIds);
   }
   for (const slug of list("club")) {
     const club = catalog.clubBySlug.get(slug);
     if (!club) dropped++;
-    else f = { ...f, cities: withItem(f.cities, club.city), clubs: withItem(f.clubs, club.id) };
+    else f = { ...f, clubs: withItem(f.clubs, club.id) };
   }
 
   const days = new Set<number>();

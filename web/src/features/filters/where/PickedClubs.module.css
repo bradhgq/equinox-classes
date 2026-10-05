@@ -1,0 +1,58 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* One line that scrolls sideways: the block's height never changes as picks come and go. */
+.list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* Let the line run to the sheet's edge, so a cut-off chip says "there's more". */
+  margin-right: calc(-1 * var(--gutter));
+  padding-right: var(--gutter);
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.list > li {
+  flex: none;
+}
+
+/* A pick: inverted like a selected chip, with the ✕ saying what a tap does. */
+.pick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--control-h);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  background: var(--color-fg);
+  color: var(--color-inverse);
+  font: 500 14px/1 var(--family-text);
+  white-space: nowrap;
+}
+
+.pick:focus-visible {
+  outline-offset: 2px;
+}
+
+/* Same height as a row of chips. */
+.none {
+  display: flex;
+  align-items: center;
+  height: var(--control-h);
+  font: var(--font-body);
+  color: var(--color-fg-2);
+}
+
+@media (hover: hover) {
+  .pick:hover {
+    opacity: 0.85;
+  }
+}

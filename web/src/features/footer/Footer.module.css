@@ -1,0 +1,29 @@
+.footer {
+  padding: var(--space-8) var(--gutter) calc(var(--space-10) + env(safe-area-inset-bottom));
+  border-top: var(--border) var(--color-line);
+  margin-top: var(--space-6);
+}
+
+.updated {
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+}
+
+/* Footnotes: small, numbered, out of the way. */
+.notes {
+  margin: var(--space-3) 0 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font: 400 12px/1.45 var(--family-text);
+  color: var(--color-fg-2);
+}
+
+@media (min-width: 1024px) {
+  .footer {
+    padding-left: var(--space-2);
+  }
+}

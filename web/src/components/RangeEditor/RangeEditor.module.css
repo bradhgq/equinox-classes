@@ -1,0 +1,31 @@
+.range {
+  container: range / inline-size;
+  display: flex;
+  align-items: center;
+  height: var(--tap);
+  border: var(--border) var(--color-fg);
+  background: var(--color-bg);
+}
+
+.dash {
+  color: var(--color-fg-3);
+  padding: 0 2px;
+}
+
+.remove {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--tap);
+  height: 100%;
+  border-left: var(--border) var(--color-line);
+  color: var(--color-fg-2);
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .remove:hover {
+    background: var(--color-fill);
+    color: var(--color-fg);
+  }
+}

@@ -1,0 +1,85 @@
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-2) 0;
+  border-bottom: var(--border) var(--color-line);
+  cursor: pointer;
+}
+
+/* The native checkbox stays in the accessibility tree and keyboard order. */
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--color-fg);
+}
+
+/* Mixed: a short bar, like the platform's indeterminate checkbox. */
+.dash {
+  width: 10px;
+  height: 2px;
+  background: currentColor;
+}
+
+.input:focus-visible + .box {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 2px;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font: 500 15px/1.25 var(--family-text);
+}
+
+.sublabel {
+  font: var(--font-small);
+  color: var(--color-fg-2);
+}
+
+.meta {
+  font: var(--font-mono-label);
+  letter-spacing: var(--track-mono-label);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+  white-space: nowrap;
+}
+
+.dimmed .label {
+  color: var(--color-fg-2);
+}
+
+.boxOn {
+  background: var(--color-fg);
+  color: var(--color-inverse);
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .row:hover .box {
+    background: var(--color-fill);
+  }
+
+  /* A ticked box stays filled under the pointer. */
+  .row:hover .boxOn {
+    background: var(--color-fg);
+  }
+}

@@ -1,0 +1,37 @@
+.heading {
+  position: sticky;
+  top: var(--sticky-offset, 0px);
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-5) var(--gutter) var(--space-2);
+  background: var(--color-bg);
+  border-bottom: var(--border) var(--color-fg);
+  font: var(--font-display-sm);
+  letter-spacing: var(--track-display-sm);
+  text-transform: uppercase;
+}
+
+.count {
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  color: var(--color-fg-2);
+}
+
+.horizon {
+  padding: var(--space-3) var(--gutter);
+  border-bottom: var(--border) var(--color-line);
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+}
+
+@media (min-width: 1024px) {
+  .heading,
+  .horizon {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+}

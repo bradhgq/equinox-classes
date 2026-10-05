@@ -1,0 +1,15 @@
+/* DayTimeRow's narrow layout queries this container. */
+.rows {
+  container: dayrows / inline-size;
+  border-top: var(--border) var(--color-fg);
+}
+
+.apply {
+  margin-top: var(--space-3);
+  white-space: normal;
+  text-align: left;
+  height: auto;
+  min-height: var(--tap);
+  padding: 0;
+  line-height: 1.4;
+}

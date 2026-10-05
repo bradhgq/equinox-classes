@@ -1,0 +1,73 @@
+.region {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  pointer-events: none;
+}
+
+.inlineRegion {
+  display: contents;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--tap);
+  padding: 0 var(--space-2) 0 var(--space-4);
+  background: var(--color-fg);
+  color: var(--color-inverse);
+  font: var(--font-mono-label);
+  letter-spacing: var(--track-mono-label);
+  text-transform: uppercase;
+  white-space: nowrap; /* one line, always (owner round 3): keep messages short */
+  pointer-events: auto;
+  animation: in 160ms var(--ease-out);
+}
+
+.toast > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bottom {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  max-width: calc(100vw - 2 * var(--space-4));
+}
+
+.anchored {
+  position: fixed;
+  padding-right: var(--space-4);
+}
+
+/* Inside a sheet's toast slot (Sheet positions the slot above its footer). */
+.inline {
+  position: relative;
+  max-width: 100%;
+}
+
+.action {
+  height: var(--tap);
+  padding: 0 var(--space-3);
+  font: var(--font-button);
+  letter-spacing: var(--track-button);
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: inherit;
+}
+
+.action:focus-visible {
+  outline-color: var(--color-inverse);
+  outline-offset: -4px;
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  // Type-checking only. Node runs these .ts files directly (native type stripping),
+  // so stick to erasable syntax: no enums, namespaces or parameter properties.
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "skipLibCheck": true
+  },
+  "include": ["apis", "shared", "downloader"]
+}

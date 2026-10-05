@@ -1,0 +1,12 @@
+[Unit]
+Description=equinox-classes: poll Equinox every 12 hours
+
+[Timer]
+# 04:30 and 16:30 New York time (systemd handles the time zone and DST).
+OnCalendar=*-*-* 04,16:30:00 America/New_York
+RandomizedDelaySec=10min
+# Run a missed poll at boot if the machine was off.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

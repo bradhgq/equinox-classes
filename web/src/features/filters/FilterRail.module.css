@@ -1,0 +1,10 @@
+/* The owner asked for a barely-there shade so the rail reads as a panel. */
+.rail {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto; /* no overscroll containment: at its end, scrolling moves the page (critique L6) */
+  padding: 0 var(--space-6) var(--space-12);
+  background: var(--color-panel);
+  border-right: var(--border) var(--color-fg);
+}

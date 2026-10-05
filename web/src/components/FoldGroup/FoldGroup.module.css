@@ -1,0 +1,67 @@
+.header {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  border-bottom: var(--border) var(--color-fg);
+}
+
+/* 44 px tap target around the 20 px box, aligned with the list's left edge. */
+.check {
+  position: relative;
+  display: grid;
+  place-items: center start;
+  flex: none;
+  width: 44px;
+  height: 52px;
+  cursor: pointer;
+}
+
+.fold {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 52px;
+  text-align: left;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font: var(--font-display-sm);
+  letter-spacing: var(--track-display-sm);
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font: var(--font-mono-label);
+  letter-spacing: var(--track-mono-label);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+  white-space: nowrap;
+}
+
+.chevron {
+  color: var(--color-fg-2);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.open {
+  transform: rotate(180deg);
+}
+
+/* Items sit under the header's checkbox column, indented to show hierarchy. */
+.body {
+  padding-left: 32px;
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .fold:hover .chevron {
+    color: var(--color-fg);
+  }
+}

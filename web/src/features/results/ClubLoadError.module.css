@@ -1,0 +1,11 @@
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: var(--space-2) var(--gutter) 0;
+  padding-left: var(--space-3);
+  border: var(--border) var(--color-fg);
+  font: var(--font-mono-label);
+  letter-spacing: var(--track-mono-label);
+  text-transform: uppercase;
+}

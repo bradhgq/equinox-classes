@@ -1,0 +1,11 @@
+.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--lines, 3);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.more {
+  padding: 0;
+  margin-top: var(--space-1);
+}

@@ -1,0 +1,25 @@
+/* Week dividers are small eyebrows with a rule (critique L3), not big headlines. */
+.week {
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--gutter) 0;
+  border-top: var(--border) var(--color-line);
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+}
+
+.week:first-child {
+  margin-top: var(--space-2);
+  border-top: 0;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+@media (min-width: 1024px) {
+  .week {
+    padding-left: var(--space-2);
+  }
+}

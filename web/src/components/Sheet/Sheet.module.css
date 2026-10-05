@@ -1,0 +1,151 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-scrim);
+  animation: fade var(--dur-base) var(--ease-out);
+}
+
+/* Phones: bottom sheet, 40px of the page peeking above. */
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  border-top: var(--border) var(--color-fg);
+  animation: rise var(--dur-base) var(--ease-out);
+  outline: none; /* the panel takes focus on open; its controls show their own rings */
+}
+
+/* Content-height sheet (class detail): no empty half-screen below short content. */
+.layer[data-fit] .panel {
+  top: auto;
+  max-height: calc(100% - 40px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 60px;
+  padding: var(--space-2) var(--space-1) var(--space-2) var(--gutter);
+  border-bottom: var(--border) var(--color-line);
+}
+
+.titles {
+  min-width: 0;
+}
+
+/* The class's date and time: the fact people check first, so full size and contrast (owner round 4). */
+.eyebrow {
+  font: 500 14px/1.25 var(--family-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font: var(--font-display-md);
+  letter-spacing: var(--track-display-md);
+  text-transform: uppercase;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--tap);
+  height: var(--tap);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--gutter) var(--space-6);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--gutter) calc(var(--space-3) + env(safe-area-inset-bottom));
+  border-top: var(--border) var(--color-line);
+  background: var(--color-bg);
+}
+
+/* Toasts inside the dialog: centered, just above the footer (or the bottom edge). */
+.toastSlot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--gutter);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.aboveFooter {
+  bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+/* Tablets and up: centered dialog. Centered with insets + auto margins, not a transform,
+   so popovers inside it (position: fixed) still line up with their anchors (critique H1). */
+@media (min-width: 768px) {
+  .panel,
+  .layer[data-fit] .panel {
+    inset: 0;
+    margin: auto;
+    width: min(560px, calc(100vw - 2 * var(--gutter)));
+    height: fit-content;
+    max-height: 85vh;
+    border: var(--border) var(--color-fg);
+    animation: fade var(--dur-base) var(--ease-out);
+  }
+}
+
+/* Desktop drawer variant: full-height panel from the right. */
+@media (min-width: 1024px) {
+  .layer[data-desktop="drawer"] .panel {
+    inset: 0 0 0 auto;
+    margin: 0;
+    width: var(--drawer-w);
+    height: auto;
+    max-height: none;
+    border: 0;
+    border-left: var(--border) var(--color-fg);
+    animation: slide var(--dur-base) var(--ease-out);
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}

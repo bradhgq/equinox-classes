@@ -1,0 +1,18 @@
+.head {
+  padding: var(--space-1) 0 var(--space-2);
+  border-bottom: var(--border) var(--color-fg);
+}
+
+.title {
+  font: var(--font-display-md);
+  letter-spacing: var(--track-display-md);
+  text-transform: uppercase;
+}
+
+.sub {
+  margin-top: var(--space-1);
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+}

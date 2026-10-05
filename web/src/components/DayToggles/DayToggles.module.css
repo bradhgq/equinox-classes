@@ -1,0 +1,39 @@
+.strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: var(--border) var(--color-fg);
+}
+
+.day {
+  height: 48px;
+  font: 600 15px/1 var(--family-display);
+  background: var(--color-bg);
+  border-right: var(--border) var(--color-fg);
+}
+
+.day:last-child {
+  border-right: 0;
+}
+
+.on {
+  background: var(--color-fg);
+  color: var(--color-inverse);
+}
+
+.day:focus-visible {
+  outline-offset: -4px;
+  outline-color: currentColor;
+}
+
+@media (min-width: 1024px) and (pointer: fine) {
+  .day {
+    height: 40px;
+  }
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .day:hover:not(.on) {
+    background: var(--color-fill);
+  }
+}

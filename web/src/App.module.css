@@ -1,0 +1,60 @@
+.page {
+  min-height: 100vh;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* Keyboard users can jump past the filters (critique L9); visible only when focused. */
+.skip {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-toast);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-fg);
+  color: var(--color-inverse);
+  font: var(--font-button);
+  letter-spacing: var(--track-button);
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip:focus {
+  transform: none;
+}
+
+main:focus {
+  outline: none;
+}
+
+/* Phones/tablets: day headers stick just under the sticky filter bar. */
+.mobile {
+  --sticky-offset: var(--filterbar-sticky, var(--filterbar-h));
+}
+
+@media (max-width: 339px) {
+  .mobile {
+    --sticky-offset: 0px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mobile,
+  .page > footer {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+}
+
+/* Desktop: rail + results. The rail scrolls on its own; results scroll with the page. */
+.desktop {
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  align-items: start;
+}
+
+.results {
+  min-width: 0;
+  padding: 0 var(--gutter);
+}

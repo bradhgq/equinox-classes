@@ -1,0 +1,17 @@
+[Unit]
+Description=equinox-classes: serve the app and data
+After=network.target
+
+[Service]
+User=equinox-classes
+WorkingDirectory=/srv/equinox-classes
+ExecStart=/usr/bin/env node deploy/server.ts --host 127.0.0.1 --port 8080 --web web/dist --data /var/lib/equinox-classes/data
+Restart=on-failure
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadOnlyPaths=/srv/equinox-classes /var/lib/equinox-classes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,51 @@
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4) var(--space-4);
+  padding: var(--space-5) 0;
+  border-bottom: var(--border) var(--color-line);
+}
+
+.fact dt {
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+  margin-bottom: var(--space-1);
+}
+
+.fact dd {
+  font: 500 15px/1.35 var(--family-text);
+}
+
+.description {
+  padding: var(--space-5) 0 0;
+}
+
+.booking {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: var(--border) var(--color-line);
+  border-bottom: var(--border) var(--color-line);
+  font: var(--font-body);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.full {
+  width: 100%;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-1) 0 var(--space-2);
+}

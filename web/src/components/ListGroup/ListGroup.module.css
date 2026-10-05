@@ -1,0 +1,19 @@
+.group + .group {
+  margin-top: var(--space-2);
+}
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) 0 var(--space-2);
+  border-bottom: var(--border) var(--color-fg);
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+}
+
+.right {
+  white-space: nowrap;
+}

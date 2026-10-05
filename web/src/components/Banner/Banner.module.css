@@ -1,0 +1,55 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--gutter);
+  background: var(--color-fg);
+  color: var(--color-inverse);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  font: 500 14px/1.35 var(--family-text);
+}
+
+.note {
+  font: var(--font-small);
+  opacity: 0.8;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.action {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--tap);
+  height: var(--tap);
+  padding: 0 var(--space-2);
+  color: inherit;
+  font: var(--font-button);
+  letter-spacing: var(--track-button);
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.action:focus-visible {
+  outline-color: var(--color-inverse);
+}
+
+/* Dark mode: an outlined bar, not a glaring white slab (critique L11). */
+@media (prefers-color-scheme: dark) {
+  .banner {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    border-bottom: var(--border) var(--color-fg);
+  }
+  .action:focus-visible {
+    outline-color: var(--color-fg);
+  }
+}

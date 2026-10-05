@@ -1,0 +1,4 @@
+.collapsed {
+  font: var(--font-body-strong);
+  padding: var(--space-2) 0;
+}

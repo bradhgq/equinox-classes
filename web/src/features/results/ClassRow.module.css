@@ -1,0 +1,121 @@
+/* Phones/tablets: time | class | chevron. Desktop adds club and booking columns. */
+.row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) 24px;
+  column-gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--gutter);
+  text-align: left;
+  border-bottom: var(--border) var(--color-line);
+  transition: background-color var(--dur-fast) linear;
+}
+
+.row:focus-visible {
+  outline-offset: -2px;
+}
+
+.time {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-self: start;
+  padding-top: 1px;
+}
+
+.start {
+  font: var(--font-mono-time);
+  white-space: nowrap;
+}
+
+.zone {
+  font: var(--font-mono-label);
+  letter-spacing: var(--track-mono-label);
+  color: var(--color-fg-2);
+}
+
+.end {
+  font: var(--font-small);
+  font-size: 12px;
+  color: var(--color-fg-2);
+  white-space: nowrap;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  font: var(--font-body-strong);
+}
+
+.sub {
+  font: var(--font-small);
+  color: var(--color-fg-2);
+}
+
+.cancelled .nameText {
+  text-decoration: line-through;
+  color: var(--color-fg-2);
+}
+
+.club,
+.booking {
+  display: none;
+}
+
+.chevron {
+  justify-self: end;
+  color: var(--color-fg-2);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+@media (min-width: 1024px) {
+  .row {
+    grid-template-columns: 112px minmax(0, 2fr) minmax(14ch, 1fr) max-content 24px;
+    column-gap: var(--space-5);
+    padding: var(--space-3) var(--space-2);
+  }
+  .club,
+  .booking {
+    display: block;
+    font: var(--font-mono-label);
+    letter-spacing: var(--track-mono-label);
+    text-transform: uppercase;
+    color: var(--color-fg-2);
+  }
+  .booking {
+    color: var(--color-fg);
+  }
+  .mobileOnly {
+    display: none;
+  }
+  /* The club has its own column on desktop: show only the instructor in the sub line. */
+  .subClub {
+    display: none;
+  }
+  .sub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .row:hover {
+    background: var(--color-fill);
+  }
+  .row:hover .chevron {
+    color: var(--color-fg);
+    transform: translateX(2px);
+  }
+}

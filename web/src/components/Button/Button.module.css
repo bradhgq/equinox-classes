@@ -1,0 +1,84 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: 0 var(--space-4);
+  font: var(--font-button);
+  letter-spacing: var(--track-button);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  border: var(--border) transparent;
+  transition: background-color var(--dur-fast) linear, color var(--dur-fast) linear;
+}
+
+.md {
+  height: var(--tap);
+}
+
+/* Small buttons keep a 44px touch target; they only shrink for a mouse on desktop (critique L1). */
+.sm {
+  height: var(--tap);
+  min-height: var(--tap);
+  padding: 0 var(--space-3);
+}
+
+@media (min-width: 1024px) and (pointer: fine) {
+  .sm {
+    height: 36px;
+    min-height: 36px;
+  }
+}
+
+.primary {
+  background: var(--color-fg);
+  color: var(--color-inverse);
+  border-color: var(--color-fg);
+}
+
+.secondary {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  border-color: var(--color-fg);
+}
+
+.text {
+  padding: 0 var(--space-2);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.icon {
+  width: var(--tap);
+  padding: 0;
+}
+
+.button:disabled {
+  color: var(--color-fg-3);
+  border-color: var(--color-fg-3);
+  background: var(--color-bg);
+}
+
+.primary:disabled {
+  background: var(--color-fill);
+  border-color: var(--color-fill);
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .primary:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+  .secondary:hover:not(:disabled) {
+    background: var(--color-fill);
+  }
+  .text:hover:not(:disabled) {
+    text-decoration-thickness: 2px;
+  }
+  .icon:hover:not(:disabled) {
+    background: var(--color-fill);
+  }
+}

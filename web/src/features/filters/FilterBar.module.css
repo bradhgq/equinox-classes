@@ -1,0 +1,105 @@
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: var(--filterbar-h);
+  background: var(--color-bg);
+  border-bottom: var(--border) var(--color-fg);
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--gutter);
+  text-align: left;
+  border-right: var(--border) var(--color-line);
+}
+
+.cell + .cell {
+  padding-left: var(--space-3);
+  padding-right: var(--space-2);
+}
+
+.cell:last-child {
+  border-right: 0;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+}
+
+/* A set filter gets a small black square after its label. */
+.set .label::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: var(--color-fg);
+}
+
+.line1,
+.line2 {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line1 {
+  font: 600 14px/1.25 var(--family-text);
+}
+
+.line2 {
+  font: var(--font-small);
+  line-height: 1.25;
+  color: var(--color-fg-2);
+}
+
+.placeholder {
+  color: var(--color-fg-2);
+  font-weight: 500;
+}
+
+.cta {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Very narrow phones: stack the three filters as full-width rows (critique H6).
+   Too tall to keep sticky there, so it scrolls away and day headers stick at the top. */
+@media (max-width: 339px) {
+  .bar {
+    position: static;
+    grid-template-columns: 1fr;
+  }
+  .cell,
+  .cell + .cell {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    column-gap: var(--space-2);
+    padding: var(--space-2) var(--gutter);
+    border-right: 0;
+    border-bottom: var(--border) var(--color-line);
+  }
+  .label {
+    grid-row: span 2;
+  }
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .cell:hover {
+    background: var(--color-fill);
+  }
+}

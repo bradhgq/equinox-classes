@@ -1,0 +1,45 @@
+.wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 100%;
+  padding: 0 20px 0 var(--space-2);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font: var(--font-mono-time); /* 13px: "10:45 AM" must fit (critique H2) */
+  color: var(--color-fg);
+  cursor: pointer;
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: -3px;
+}
+
+.chevron {
+  position: absolute;
+  right: 4px;
+  pointer-events: none;
+  color: var(--color-fg-2);
+}
+
+/* Narrow rows drop the chevron; the select still opens (critique H6). */
+@container range (max-width: 250px) {
+  .select {
+    padding: 0 var(--space-2);
+    text-align: center;
+  }
+  .chevron {
+    display: none;
+  }
+}

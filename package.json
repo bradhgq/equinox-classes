@@ -1,0 +1,17 @@
+{
+  "name": "equinox-classes",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "download": "node downloader/download.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test \"shared/**/*.test.ts\" \"apis/**/*.test.ts\" \"downloader/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}

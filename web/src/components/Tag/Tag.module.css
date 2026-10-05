@@ -1,0 +1,16 @@
+.tag {
+  display: inline-block;
+  padding: 2px 4px 1px;
+  font: 500 10px/1 var(--family-mono); /* a step under --font-mono-label: secondary to the class name */
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: var(--border) currentColor;
+  vertical-align: 2px;
+}
+
+.solid {
+  background: var(--color-fg);
+  color: var(--color-inverse);
+  border-color: var(--color-fg);
+}

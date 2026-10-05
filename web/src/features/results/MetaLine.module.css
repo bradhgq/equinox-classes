@@ -1,0 +1,30 @@
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--gutter) var(--space-1);
+}
+
+.count {
+  font: 600 14px/1.2 var(--family-text);
+}
+
+.stale {
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg);
+  text-align: right;
+}
+
+@media (min-width: 1024px) {
+  .meta {
+    padding: var(--space-8) var(--space-2) var(--space-2);
+  }
+  .count {
+    font: var(--font-display-lg);
+    letter-spacing: var(--track-display-lg);
+    text-transform: uppercase;
+  }
+}

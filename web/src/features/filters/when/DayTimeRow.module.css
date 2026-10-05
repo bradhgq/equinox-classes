@@ -1,0 +1,101 @@
+/* The narrow layout keys off the `dayrows` container that WhenPanel puts around the rows. */
+.row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) var(--tap);
+  gap: var(--space-2);
+  align-items: start;
+  padding: var(--space-3) 0;
+  border-bottom: var(--border) var(--color-line);
+}
+
+/* "MON ✕": the day label doubles as the remove-day button. */
+.day {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--tap);
+  padding: 0;
+  font: var(--font-display-sm);
+  letter-spacing: var(--track-display-sm);
+  text-transform: uppercase;
+}
+
+.day svg {
+  color: var(--color-fg-2);
+}
+
+.ranges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  justify-content: center;
+}
+
+.any {
+  font: 500 15px/1.2 var(--family-text);
+  color: var(--color-fg-2);
+}
+
+/* Three equal, compact buttons that always fit on one line. */
+.presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.preset {
+  height: var(--control-h); /* 44px on touch, 36px with a mouse on desktop (critique L1) */
+  padding: 0 var(--space-1);
+  border: var(--border) var(--color-fg-3);
+  font: 600 11px/1 var(--family-text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.add {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: var(--border) var(--color-fg);
+}
+
+.add:disabled {
+  border-color: var(--color-fg-3);
+  color: var(--color-fg-3);
+}
+
+/* Phones and the desktop rail: day label above its ranges, so two-digit hours never clip (critique H2). */
+@container dayrows (max-width: 360px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) var(--tap);
+  }
+  .day {
+    grid-column: 1 / -1;
+    height: 32px;
+  }
+}
+
+/* Hover styles only where hovering exists: no sticky highlights after a tap (critique L9). */
+@media (hover: hover) {
+  .day:hover svg {
+    color: var(--color-fg);
+  }
+  .preset:hover {
+    border-color: var(--color-fg);
+  }
+  .add:hover:not(:disabled) {
+    background: var(--color-fill);
+  }
+}

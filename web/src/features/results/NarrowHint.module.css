@@ -1,0 +1,27 @@
+.hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin: var(--space-3) var(--gutter) 0;
+  padding: var(--space-3) 0 var(--space-3) var(--space-4);
+  border: var(--border) var(--color-fg);
+}
+
+.text {
+  font: var(--font-body-strong);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap; /* never wider than a 320px screen (critique H3) */
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (min-width: 1024px) {
+  .hint {
+    margin: var(--space-3) var(--space-2) 0;
+  }
+}

@@ -1,0 +1,43 @@
+.field {
+  display: flex;
+  align-items: center;
+  height: var(--tap);
+  border: var(--border) var(--color-fg);
+  background: var(--color-bg);
+}
+
+.icon {
+  margin: 0 var(--space-2) 0 var(--space-3);
+  color: var(--color-fg-2);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  font: 400 16px/1 var(--family-text); /* 16px keeps iOS from zooming on focus */
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-fg-2);
+}
+
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.field:focus-within {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 2px;
+}
+
+.clear {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: 100%;
+  color: var(--color-fg-2);
+}

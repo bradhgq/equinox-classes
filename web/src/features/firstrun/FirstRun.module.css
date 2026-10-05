@@ -1,0 +1,44 @@
+.hero {
+  padding: var(--space-10) var(--gutter) var(--space-12);
+  max-width: 720px;
+}
+
+.eyebrow {
+  font: var(--font-mono-eyebrow);
+  letter-spacing: var(--track-mono-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-fg-2);
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font: var(--font-display-xl);
+  letter-spacing: var(--track-display-xl);
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+.subtitle {
+  font: 600 17px/1.35 var(--family-text);
+  margin-bottom: var(--space-2);
+}
+
+.lede {
+  max-width: 34ch;
+  color: var(--color-fg-2);
+}
+
+@media (max-width: 359px) {
+  .title {
+    font-size: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding: var(--space-12) var(--space-2);
+  }
+  .title {
+    font-size: 64px;
+  }
+}

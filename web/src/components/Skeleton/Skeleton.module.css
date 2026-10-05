@@ -1,0 +1,35 @@
+.wrap {
+  padding: 0 var(--gutter);
+}
+
+.header {
+  padding: var(--space-5) 0 var(--space-2);
+  border-bottom: var(--border) var(--color-fg);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: var(--space-2);
+  padding: var(--space-4) 0;
+  border-bottom: var(--border) var(--color-line);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bar {
+  display: block;
+  height: 12px;
+  background: var(--color-fill);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}

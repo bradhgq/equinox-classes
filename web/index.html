@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Equinox classes that fit</title>
+    <meta name="description" content="Better filtering for the Equinox schedule: every class at your clubs, on the days and times you can go. Unofficial." />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+
+    <!-- Link previews (iMessage, Slack, …). Share links are query strings on this page, so the preview is static. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Equinox Classes" />
+    <meta property="og:title" content="Equinox classes that fit" />
+    <meta property="og:description" content="Better filtering for the Equinox schedule: every class at your clubs, on the days and times you can go." />
+    <meta property="og:image" content="/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Static shell: paints the header and a skeleton before the JS and data arrive (critique L11).
+         It mirrors features/header/Header and components/Skeleton; keep them in step. main.tsx clears it. -->
+    <style>
+      .shell { --bg: #fff; --fg: #000; --line: #e5e5e5; --fill: #f2f2f2; --gutter: 16px; max-width: 1440px; margin: 0 auto; }
+      @media (prefers-color-scheme: dark) { .shell { --bg: #000; --fg: #fff; --line: #242424; --fill: #161616; } }
+      @media (min-width: 768px) { .shell { --gutter: 24px; } }
+      @media (min-width: 1024px) { .shell { --gutter: 32px; } }
+      body { margin: 0; padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left); background: #fff; }
+      @media (prefers-color-scheme: dark) { body { background: #000; } }
+      .shell, .shell * { box-sizing: border-box; }
+      .shell { color: var(--fg); font-family: Inter, system-ui, sans-serif; }
+      .shell-header { display: flex; align-items: center; gap: 12px; height: 56px; padding-left: var(--gutter); border-bottom: 1px solid var(--line); }
+      .shell-brand { display: flex; align-items: center; gap: 12px; margin: 0; font-weight: normal; }
+      .shell-mark { flex: none; width: 26px; height: 26px; color: var(--fg); }
+      .shell-mark .glyph { color: var(--bg); }
+      .shell-wordmark { font: 600 18px/1 "Inter Tight", Inter, system-ui, sans-serif; letter-spacing: -0.01em; text-transform: uppercase; white-space: nowrap; }
+      .shell-tag { font: 500 9px/1 "DM Mono", ui-monospace, monospace; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 5px 2px; border: 1px solid currentColor; }
+      .shell-list { padding: 0 var(--gutter); }
+      .shell-day { padding: 20px 0 8px; border-bottom: 1px solid var(--fg); }
+      .shell-row { display: grid; grid-template-columns: 84px 1fr; gap: 8px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+      .shell-lines { display: flex; flex-direction: column; gap: 8px; }
+      .shell-bar { display: block; height: 12px; background: var(--fill); }
+      .shell noscript p { padding: 20px var(--gutter); font-size: 15px; }
+      @media (max-width: 359px) {
+        .shell-header, .shell-brand { gap: 8px; }
+        .shell-mark { width: 22px; height: 22px; }
+        .shell-wordmark { font-size: 15px; }
+      }
+      @media (min-width: 1024px) {
+        .shell-header { height: 64px; }
+        .shell-mark { width: 30px; height: 30px; }
+        .shell-wordmark { font-size: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="shell">
+        <header class="shell-header">
+          <h1 class="shell-brand">
+            <svg class="shell-mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+              <rect width="512" height="512" fill="currentColor" />
+              <g class="glyph">
+                <path d="M385.9 181 A150 150 0 1 0 385.9 331" fill="none" stroke="currentColor" stroke-width="28" />
+                <rect x="203" y="190" width="28" height="132" fill="currentColor" />
+                <rect x="203" y="190" width="100" height="28" fill="currentColor" />
+                <rect x="203" y="242" width="86" height="28" fill="currentColor" />
+                <rect x="203" y="294" width="100" height="28" fill="currentColor" />
+              </g>
+            </svg>
+            <span class="shell-wordmark">Equinox Classes</span>
+            <span class="shell-tag">Unofficial</span>
+          </h1>
+        </header>
+        <noscript><p>Equinox Classes needs JavaScript to filter the schedule.</p></noscript>
+        <div class="shell-list" aria-hidden="true">
+          <div class="shell-day"><span class="shell-bar" style="width: 40%"></span></div>
+          <div class="shell-row"><span class="shell-bar" style="width: 56px"></span><span class="shell-lines"><span class="shell-bar" style="width: 55%"></span><span class="shell-bar" style="width: 35%"></span></span></div>
+          <div class="shell-row"><span class="shell-bar" style="width: 56px"></span><span class="shell-lines"><span class="shell-bar" style="width: 72%"></span><span class="shell-bar" style="width: 46%"></span></span></div>
+          <div class="shell-row"><span class="shell-bar" style="width: 56px"></span><span class="shell-lines"><span class="shell-bar" style="width: 59%"></span><span class="shell-bar" style="width: 57%"></span></span></div>
+          <div class="shell-row"><span class="shell-bar" style="width: 56px"></span><span class="shell-lines"><span class="shell-bar" style="width: 76%"></span><span class="shell-bar" style="width: 43%"></span></span></div>
+          <div class="shell-row"><span class="shell-bar" style="width: 56px"></span><span class="shell-lines"><span class="shell-bar" style="width: 63%"></span><span class="shell-bar" style="width: 54%"></span></span></div>
+          <div class="shell-row"><span class="shell-bar" style="width: 56px"></span><span class="shell-lines"><span class="shell-bar" style="width: 80%"></span><span class="shell-bar" style="width: 40%"></span></span></div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

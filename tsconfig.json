@@ -14,5 +14,5 @@
     "erasableSyntaxOnly": true,
     "skipLibCheck": true
   },
-  "include": ["apis", "shared", "downloader"]
+  "include": ["apis", "shared", "downloader", "deploy"]
 }

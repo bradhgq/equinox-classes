@@ -71,6 +71,17 @@ Stack: Preact + TypeScript + Vite, CSS Modules, no UI library. Shared types and 
 >     "Link copied" is true.
 >   - Tags are 10 px.
 >   - The footer's "Equinox's rule" links to equinox.com/bookingrules.
+> - **Calendar subscription (notifications v2a):**
+>   - "Subscribe" (calendar icon, `sm` secondary) sits right of the result count in the meta line,
+>     disabled until every club has loaded.
+>   - It opens a `fit` sheet with:
+>     - the search in words;
+>     - "About N alerts a week";
+>     - Apple / Google buttons (Apple first on Apple devices) and Copy link;
+>     - footnotes on alerts per app.
+>   - Busy (over 25 a week): a "narrow it down" line with When / What.
+>   - Over 300 classes: no subscribe buttons.
+>   - See `docs/notifications-v2.md`.
 
 ---
 

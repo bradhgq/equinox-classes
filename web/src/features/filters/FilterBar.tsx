@@ -34,6 +34,7 @@ export function FilterBar({ onOpen }: Props) {
         return (
           <button
             key={name}
+            data-focus-key={`filter-${name}`}
             type="button"
             class={`${styles.cell} ${s.empty ? "" : styles.set}`}
             aria-haspopup="dialog"

@@ -1,3 +1,4 @@
+import type { ComponentChildren } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { formatShortDate } from "../../lib/time.ts";
 import styles from "./MetaLine.module.css";
@@ -9,6 +10,8 @@ interface Props {
   loading: { loaded: number; failed: number; total: number };
   generatedAt: string;
   nowMs: number;
+  /** Right-hand action (Subscribe). */
+  action?: ComponentChildren;
 }
 
 const classes = (n: number) => `${n.toLocaleString()} ${n === 1 ? "class" : "classes"}`;
@@ -18,7 +21,7 @@ const classes = (n: number) => `${n.toLocaleString()} ${n === 1 ? "class" : "cla
  * schedule is worth flagging up here. Screen readers hear the settled count once,
  * not every loading step (critique L9).
  */
-export function MetaLine({ count, loading, generatedAt, nowMs }: Props) {
+export function MetaLine({ count, loading, generatedAt, nowMs, action }: Props) {
   const settled = loading.loaded + loading.failed >= loading.total;
   const stale = nowMs - Date.parse(generatedAt) > STALE_MS;
   const text = settled
@@ -35,11 +38,14 @@ export function MetaLine({ count, loading, generatedAt, nowMs }: Props) {
 
   return (
     <div class={styles.meta}>
-      <p class={styles.count}>{text}</p>
-      <p class="visually-hidden" aria-live="polite">
-        {announced}
-      </p>
-      {stale && <p class={styles.stale}>May be out of date · updated {formatShortDate(generatedAt.slice(0, 10))}</p>}
+      <div class={styles.text}>
+        <p class={styles.count}>{text}</p>
+        <p class="visually-hidden" aria-live="polite">
+          {announced}
+        </p>
+        {stale && <p class={styles.stale}>May be out of date · updated {formatShortDate(generatedAt.slice(0, 10))}</p>}
+      </div>
+      {action}
     </div>
   );
 }

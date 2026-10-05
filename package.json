@@ -8,7 +8,7 @@
   "scripts": {
     "download": "node downloader/download.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --test \"shared/**/*.test.ts\" \"apis/**/*.test.ts\" \"downloader/**/*.test.ts\""
+    "test": "node --test \"shared/**/*.test.ts\" \"apis/**/*.test.ts\" \"downloader/**/*.test.ts\" \"deploy/**/*.test.ts\""
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

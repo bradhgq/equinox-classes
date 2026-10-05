@@ -19,7 +19,7 @@ days ahead depending on the weekday.
   the web app.
 - `downloader/`: polls the API, archives raw snapshots, builds `data/`.
 - `web/`: front end (Preact + Vite).
-- `deploy/`: running it on a server (12 h timer + static serving).
+- `deploy/`: running it on a server (12 h timer, static serving, calendar subscriptions).
 - `docs/`: design spec, critiques, handoff, notifications proposal.
 
 ## Quick start

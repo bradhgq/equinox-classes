@@ -1,6 +1,6 @@
 # Notifications (v2): proposal
 
-Status: proposal, not built · 2026-10-04
+Status: v2a's calendar subscription is **built** (2026-10-04, see below); the rest is a proposal.
 
 You asked for this to be thought through: saved searches that remind people on a schedule they
 pick, plus "tell me when this class is bookable", delivered to phones if possible and email if
@@ -64,6 +64,24 @@ accounts. It also teaches the "booking opens 26 h before" rule.
      alarm at booking-open.
    - A per-feed option `alarm=open|start|none` picks the alarm.
    - It costs about one route plus the filter engine shared with the web app.
+
+**Built (2026-10-04): the calendar subscription, without presets yet.**
+
+- **Entry point:** a "Subscribe" button beside the result count opens a sheet. It shows the search
+  in words and the expected alerts per week, then Apple Calendar (`webcal://`), Google Calendar
+  ("add by URL") and Copy link.
+- **Feed:** `GET /calendar.ics?<share query>` (`deploy/calendar.ts`, built from `web/src/lib/feed.ts`).
+  - It has one event per match **at the moment booking opens** (the same "Book: …" event as the
+    one-off reminder), with an alert at its start.
+  - Events sit at booking time, not class time, because the alert is the point: every calendar can
+    alert "at the time of the event", while a feed's own alarms are dropped by Google and, when
+    "Remove Alerts" is on, by Apple.
+  - No `alarm=` option yet.
+- **Guardrails:**
+  - Over 25 alerts a week, the sheet suggests narrowing with When or What.
+  - Over 300 classes, it won't offer the feed at all.
+  - The server caps a feed at 300 events.
+- **Still to do from v2a:** saved-search presets, then a per-preset subscribe.
 
 ### v2b: Web Push
 

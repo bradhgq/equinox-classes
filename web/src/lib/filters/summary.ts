@@ -172,7 +172,8 @@ function daysForSentence(days: readonly number[]): string {
 }
 
 /** "Equinox classes that fit: Yoga and Beats Ride at Greenwich Ave and Hudson Yards on Mon, Wed and Sat, 6–9 AM." */
-export function shareSentence(f: Filters, catalog: Catalog): string {
+/** The search in words: "Yoga at New York (Downtown) on Mon and Wed, 6–9 AM" (empty if nothing is set). */
+export function searchPhrase(f: Filters, catalog: Catalog): string {
   const what = isAnyClass(f, catalog) ? [] : whatTokens(f, catalog).map((t) => t.spoken ?? t.label);
   const where = wherePhrases(f, catalog);
   let s = what.length ? listJoin(what) : "";
@@ -183,5 +184,10 @@ export function shareSentence(f: Filters, catalog: Catalog): string {
     if (shape.kind === "same") s += `, ${rangesLabel(shape.ranges)}`;
     if (shape.kind === "vary") s += " (times vary by day)";
   }
-  return s ? `Equinox classes that fit: ${s}.` : "Equinox classes that fit.";
+  return s;
+}
+
+export function shareSentence(f: Filters, catalog: Catalog): string {
+  const phrase = searchPhrase(f, catalog);
+  return phrase ? `Equinox classes that fit: ${phrase}.` : "Equinox classes that fit.";
 }

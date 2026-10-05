@@ -3,6 +3,9 @@
 //   /data/...    the downloader's JSON (data/index.json, data/clubs/*.json)
 //   /prefs       re-issues the `eqxc` filter cookie as an HTTP cookie, so Safari's
 //                7-day cap on script-set cookies doesn't wipe filters (critique C1)
+//   /calendar.ics?<share query>
+//                a search as a calendar subscription: an event when booking opens for
+//                each matching class (see calendar.ts)
 //
 // Usage: node deploy/server.ts [--port 8080] [--web web/dist] [--data data] [--host 127.0.0.1]
 // Put it behind your reverse proxy / tunnel (it speaks plain HTTP).
@@ -12,7 +15,8 @@ import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { createBrotliCompress, createGzip } from "node:zlib";
+import { createBrotliCompress, createGzip, gzipSync } from "node:zlib";
+import { calendarFeed } from "./calendar.ts";
 
 const { values: args } = parseArgs({
   options: {
@@ -121,9 +125,34 @@ async function send(req: IncomingMessage, res: ServerResponse, file: string, url
   }
 }
 
+/** The subscription feed. Calendar apps poll it, so it revalidates cheaply via ETag. */
+function sendCalendar(req: IncomingMessage, res: ServerResponse, query: string) {
+  if (!existsSync(join(DATA_DIR, "index.json"))) {
+    res.writeHead(503, { "Content-Type": "text/plain", "Retry-After": "600" }).end("no data yet\n");
+    return;
+  }
+  const feed = calendarFeed(DATA_DIR, query);
+  res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+  res.setHeader("Content-Disposition", 'inline; filename="equinox-classes.ics"');
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("ETag", feed.etag);
+  res.setHeader("Vary", "Accept-Encoding");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  if (req.headers["if-none-match"] === feed.etag) {
+    res.writeHead(304).end();
+    return;
+  }
+  const gzip = String(req.headers["accept-encoding"] ?? "").includes("gzip");
+  const body = gzip ? gzipSync(feed.body) : Buffer.from(feed.body);
+  if (gzip) res.setHeader("Content-Encoding", "gzip");
+  res.setHeader("Content-Length", body.length);
+  res.end(req.method === "HEAD" ? undefined : body);
+}
+
 const server = createServer(async (req, res) => {
   try {
-    const urlPath = new URL(req.url ?? "/", "http://x").pathname;
+    const url = new URL(req.url ?? "/", "http://x");
+    const urlPath = url.pathname;
     if (req.method !== "GET" && req.method !== "HEAD") {
       res.writeHead(405, { Allow: "GET, HEAD" }).end();
       return;
@@ -133,6 +162,7 @@ const server = createServer(async (req, res) => {
       res.writeHead(204, { "Cache-Control": "no-store" }).end();
       return;
     }
+    if (urlPath === "/calendar.ics") return sendCalendar(req, res, url.search.slice(1));
     if (urlPath === "/healthz") {
       const ok = existsSync(join(DATA_DIR, "index.json"));
       res.writeHead(ok ? 200 : 503, { "Content-Type": "text/plain" }).end(ok ? "ok\n" : "no data yet\n");

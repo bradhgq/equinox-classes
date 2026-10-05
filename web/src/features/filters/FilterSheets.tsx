@@ -48,6 +48,7 @@ export function FilterSheets({ open, onClose, toast }: Props) {
       onClose={onClose}
       hideFooter={keyboardOpen}
       toast={toast}
+      returnFocusKey={`filter-${open}`}
       footer={
         <>
           {showClear && (

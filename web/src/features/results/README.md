@@ -5,7 +5,8 @@
 - `Agenda.tsx`: day groups with week dividers, rendered in chunks as you scroll.
 - `DayGroup.tsx`: sticky day heading, "schedule published through" notes, then rows.
 - `ClassRow.tsx`: one class. The whole row opens the detail; a chevron, never an external arrow.
-- `MetaLine.tsx`: result count (live region); a stale-data warning only when needed.
+- `MetaLine.tsx`: result count (live region), a stale-data warning only when needed, and an action
+  slot on the right (Subscribe).
 - `NarrowHint.tsx`: "Narrow it down" nudge toward When and What.
 - `NoMatches.tsx`: one-tap fixes with counts, plus where the class does run.
 - `ClubLoadError.tsx`: one club's file failed: retry inline.

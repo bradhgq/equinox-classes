@@ -11,7 +11,8 @@ database.
   class families.
 - `downloader/`: fetches snapshots and builds `data/` (raw archive + web JSON).
 - `web/`: the Preact + Vite front end.
-- `deploy/`: how the server runs it (timer, static serving).
+- `deploy/`: how the server runs it (timer, static serving, the `/calendar.ics` feed, which reuses
+  `web/src/lib`'s filter code).
 - `docs/`: design docs, critiques, proposals.
 - `data/`: generated output. Git-ignored; never commit it.
 

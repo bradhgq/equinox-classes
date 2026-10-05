@@ -5,7 +5,7 @@ downloader's static JSON from `./data/`.
 
 - `index.html`: the page, with link-preview (Open Graph) tags, icons, the manifest, and a static
   header + skeleton that paints before the JS loads (mirrors `Header` and `Skeleton`; keep in step).
-- `vite.config.ts`: in dev it serves `../data` at `/data`; builds use relative asset URLs (works
+- `vite.config.ts`: in dev it serves `../data` at `/data` and the calendar feed at `/calendar.ics`; builds use relative asset URLs (works
   under a sub-path).
 - `public/`: copied as-is: icons, `og.png` link preview, `manifest.webmanifest`.
 - `src/`: the app (see `src/README.md`).

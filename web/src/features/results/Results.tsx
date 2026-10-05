@@ -8,6 +8,7 @@ import type { ResultItem } from "../../lib/results.ts";
 import { useFilters } from "../../state/FiltersContext.tsx";
 import { isSettled, useResults } from "../../state/ResultsContext.tsx";
 import { FirstRun } from "../firstrun/FirstRun.tsx";
+import { SubscribeButton } from "../subscribe/SubscribeButton.tsx";
 import type { FilterName } from "../filters/useSummaries.ts";
 import { Agenda } from "./Agenda.tsx";
 import { ClubLoadError } from "./ClubLoadError.tsx";
@@ -21,10 +22,11 @@ interface Props {
   nowMs: number;
   onOpenClass: (item: ResultItem) => void;
   onRevealFilter: (filter: FilterName) => void;
+  onSubscribe: () => void;
 }
 
 /** The main column: first run, loading, errors, nothing picked, no matches, or the agenda. */
-export function Results({ hasClubs, nowMs, onOpenClass, onRevealFilter }: Props) {
+export function Results({ hasClubs, nowMs, onOpenClass, onRevealFilter, onSubscribe }: Props) {
   const { catalog, filters, update } = useFilters();
   const { results, loading, failedIds, retry } = useResults();
   const holding = useSkeletonHold(loading);
@@ -52,7 +54,13 @@ export function Results({ hasClubs, nowMs, onOpenClass, onRevealFilter }: Props)
 
   return (
     <>
-      <MetaLine count={results.count} loading={loading} generatedAt={catalog.index.generatedAt} nowMs={nowMs} />
+      <MetaLine
+        count={results.count}
+        loading={loading}
+        generatedAt={catalog.index.generatedAt}
+        nowMs={nowMs}
+        action={<SubscribeButton onOpen={onSubscribe} disabled={stillLoading || results.count === 0} />}
+      />
       {!hasWhen(filters) && isAnyClass(filters, catalog) && <NarrowHint onReveal={onRevealFilter} />}
       {failedIds.map((id) => (
         <ClubLoadError key={id} name={catalog.clubs.get(id)?.shortName ?? id} onRetry={() => retry(id)} />

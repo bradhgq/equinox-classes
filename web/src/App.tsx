@@ -14,6 +14,7 @@ import { LoadError } from "./features/results/LoadError.tsx";
 import { Results } from "./features/results/Results.tsx";
 import { ShareFallback } from "./features/share/ShareFallback.tsx";
 import { SharedBanner } from "./features/share/SharedBanner.tsx";
+import { SubscribeSheet } from "./features/subscribe/SubscribeSheet.tsx";
 import { buildSharePayload, sharePayload } from "./features/share/share.ts";
 import { useIsDesktop } from "./hooks/useMediaQuery.ts";
 import { useNow } from "./hooks/useNow.ts";
@@ -76,6 +77,7 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
   const [detail, setDetail] = useState<ResultItem | null>(null);
   const [reveal, setReveal] = useState<{ panel: FilterName; nonce: number } | null>(null);
   const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
+  const [subscribeOpen, setSubscribeOpen] = useState(false);
 
   const share = async (shareButton: HTMLElement) => {
     const payload = buildSharePayload(filters, catalog);
@@ -88,7 +90,7 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
   const revealFilter = (panel: FilterName) => (isDesktop ? setReveal({ panel, nonce: Date.now() }) : setSheet(panel));
   const description = detail ? schedules.find((s) => s.clubId === detail.club.id)?.descriptions[String(detail.c.classId)] : undefined;
   const hasClubs = clubIds.length > 0;
-  const modalOpen = (!isDesktop && sheet !== null) || detail !== null || fallbackUrl !== null;
+  const modalOpen = (!isDesktop && sheet !== null) || detail !== null || fallbackUrl !== null || subscribeOpen;
   // While a sheet is open its toast renders inside it, so Undo is reachable (critique M1).
   const inlineToast = <Toast toast={toast} onDismiss={dismissToast} inline />;
 
@@ -96,7 +98,9 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
     () => ({ results, resultsWith, counts, loading: { loaded: loadedCount, failed: failedIds.length, total, clubKey: clubIds.join(",") }, failedIds, retry }),
     [results, resultsWith, counts, loadedCount, failedIds, total, clubIds, retry],
   );
-  const resultsView = <Results hasClubs={hasClubs} nowMs={nowMs} onOpenClass={setDetail} onRevealFilter={revealFilter} />;
+  const resultsView = (
+    <Results hasClubs={hasClubs} nowMs={nowMs} onOpenClass={setDetail} onRevealFilter={revealFilter} onSubscribe={() => setSubscribeOpen(true)} />
+  );
 
   return (
     <ResultsContext.Provider value={resultsApi}>
@@ -135,6 +139,13 @@ function Main({ isDesktop, toast, showToast, dismissToast }: MainProps) {
         toast={inlineToast}
       />
       <ShareFallback url={fallbackUrl} onClose={() => setFallbackUrl(null)} />
+      <SubscribeSheet
+        open={subscribeOpen}
+        onClose={() => setSubscribeOpen(false)}
+        onRevealFilter={revealFilter}
+        onNotice={(message) => showToast({ message, durationMs: 2000 })}
+        toast={inlineToast}
+      />
       {!modalOpen && <Toast toast={toast} onDismiss={dismissToast} />}
     </ResultsContext.Provider>
   );

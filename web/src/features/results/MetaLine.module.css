@@ -1,9 +1,16 @@
 .meta {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4) var(--gutter) var(--space-1);
+  padding: var(--space-3) var(--gutter) var(--space-1);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
 }
 
 .count {
@@ -15,7 +22,6 @@
   letter-spacing: var(--track-mono-eyebrow);
   text-transform: uppercase;
   color: var(--color-fg);
-  text-align: right;
 }
 
 @media (min-width: 1024px) {

@@ -7,5 +7,6 @@ App-specific UI composed from `components/`. Each subfolder is one area of the s
 - `results/`: the agenda and its states.
 - `detail/`: in-app class detail and the booking reminder.
 - `share/`: share links and the shared-search banner.
+- `subscribe/`: the search as a calendar subscription (booking-open alerts).
 - `firstrun/`: the no-clubs-yet start screen.
 - `footer/`: freshness, unofficial notice, cookie note.

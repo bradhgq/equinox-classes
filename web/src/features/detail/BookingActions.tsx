@@ -5,9 +5,10 @@ import { Button } from "../../components/Button/Button.tsx";
 import { Popover } from "../../components/Popover/Popover.tsx";
 import type { BookingStatus } from "../../lib/booking.ts";
 import { downloadText, isApplePlatform } from "../../lib/download.ts";
+import { buildIcs, googleCalendarUrl } from "../../lib/ics.ts";
+import { reminderEvent } from "../../lib/reminder.ts";
 import type { ResultItem } from "../../lib/results.ts";
 import { formatInZone } from "../../lib/time.ts";
-import { googleUrlFor, icsFor, reminderEvent } from "./reminder.ts";
 import styles from "./ClassDetail.module.css";
 
 interface Props {
@@ -41,9 +42,9 @@ export function BookingActions({ item, status }: Props) {
   if (c.isCancelled || status.state === "started") return <div class={styles.actions}>{book("secondary")}</div>;
   if (status.state === "open") return <div class={styles.actions}>{book("primary")}</div>;
 
-  const ev = reminderEvent(item, status);
+  const ev = reminderEvent(item, status.opensAt);
   const opens = formatInZone(status.opensAt, club.timeZone);
-  const downloadIcs = () => downloadText(`book-${c.classInstanceId}.ics`, icsFor(ev), "text/calendar");
+  const downloadIcs = () => downloadText(`book-${c.classInstanceId}.ics`, buildIcs(ev), "text/calendar");
 
   return (
     <div class={styles.actions}>
@@ -63,7 +64,7 @@ export function BookingActions({ item, status }: Props) {
           >
             Calendar file (.ics)
           </Button>
-          <Button href={googleUrlFor(ev)} target="_blank" rel="noopener" onClick={() => setMenuOpen(false)}>
+          <Button href={googleCalendarUrl(ev)} target="_blank" rel="noopener" onClick={() => setMenuOpen(false)}>
             Google Calendar
           </Button>
         </div>

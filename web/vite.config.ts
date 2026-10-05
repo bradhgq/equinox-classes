@@ -2,9 +2,10 @@ import { defineConfig, type Plugin } from "vite";
 import preact from "@preact/preset-vite";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { join, normalize, resolve } from "node:path";
+import { calendarFeed } from "../deploy/calendar.ts";
 
 // In production the server serves the downloader's output at /data next to the
-// built app. In dev, mirror that by streaming ../data (repo root) at /data.
+// built app, plus /calendar.ics. In dev, mirror both from ../data (repo root).
 const DATA_DIR = resolve(__dirname, "../data");
 
 function serveData(): Plugin {
@@ -18,6 +19,11 @@ function serveData(): Plugin {
         res.setHeader("Content-Type", file.endsWith(".json") ? "application/json" : "application/octet-stream");
         res.setHeader("Cache-Control", "no-cache");
         createReadStream(file).pipe(res);
+      });
+      // The calendar subscription feed, rendered by the same code as the production server.
+      server.middlewares.use("/calendar.ics", (req, res) => {
+        res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+        res.end(calendarFeed(DATA_DIR, (req.url ?? "").split("?")[1] ?? "").body);
       });
     },
   };

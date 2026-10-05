@@ -6,9 +6,9 @@ a tiny Node server serves the built app plus the JSON.
 - `server.ts`: a zero-dependency static server. It serves `web/dist` at `/` and the published
   JSON at `/data/`, re-issues the filter cookie (`/prefs`), serves calendar subscriptions
   (`/calendar.ics`), and exposes `/healthz`.
-- `calendar.ts`: `/calendar.ics?<share query>`: a search as a calendar feed, one "Book: …" event
-  when booking opens for each matching class. It runs the web app's own filter code
-  (`web/src/lib`), so a subscription matches the page. `calendar.test.ts` covers it.
+- `calendar.ts`: `/calendar.ics?<share query>`: a search as a calendar feed, each matching class at
+  its real time. It runs the web app's own filter code (`web/src/lib`), so a subscription matches
+  the page. `calendar.test.ts` covers it.
 - `systemd/equinox-classes-download.{service,timer}`: polls at 04:30 and 16:30 New York time and
   rebuilds `data/`.
 - `systemd/equinox-classes-web.service`: runs `server.ts` on `127.0.0.1:8080`, behind your
@@ -56,15 +56,16 @@ served.
 `webcal://<host>/calendar.ics?<the share-link query>`. Stateless: the query is the subscription,
 so there's nothing to store and nothing to clean up.
 
-- **Events:** one per matching class, 15 minutes long, at the moment booking opens (26 h before
-  class; 5:00 AM when that lands in Equinox's 2–5 AM closure). Each has an alert at its start.
-  Cancelled classes are left out; started ones drop off.
+- **Events:** one per matching class, at its real time. The notes say when booking opens (26 h
+  before class; 5:00 AM when that lands in Equinox's 2–5 AM closure) and link to the class page.
+  There are no alerts. Cancelled classes stay, marked "Cancelled:" with `STATUS:CANCELLED`; started
+  ones drop off.
 - **Limits:** at most 300 events per feed (the app won't offer bigger ones). Expect about 70 ms to
   render a fresh feed; repeat polls get a `304` via ETag.
 - **Apps:**
-  - Apple Calendar fetches it from the device and keeps its alerts unless "Remove Alerts" is on.
+  - Apple Calendar fetches it from the device.
   - Google Calendar fetches it from Google's servers, so it needs a public HTTPS URL. It refreshes
-    about once a day and uses the calendar's own notification settings, not the feed's alerts.
+    about once a day.
 - **Proxy:** pass `/calendar.ics` through like any other path, query string included.
 
 ## Why these choices
@@ -78,6 +79,10 @@ so there's nothing to store and nothing to clean up.
 - **Caching:**
   - `index.html` and `/data/*`: `no-cache` + ETag, so revisits are fast (304s) and never stale.
   - Hashed `/assets/*`: cached for a year.
+- **Compression:** brotli (quality 5) or gzip, kept in memory per file until the file changes. The
+  data changes twice a day and assets never, so each file is compressed once. At brotli's default
+  quality, 11, compressing each club file on every request made a 42-club load take over 30 s; now
+  it's under 1 s, and club files are about a third smaller than gzip.
 
 ## Checking it
 

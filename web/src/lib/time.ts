@@ -110,16 +110,25 @@ export function formatAgo(iso: string, now: Date = new Date()): string {
   return `${Math.round(hours / 24)} d ago`;
 }
 
+/** Intl formatters are slow to build and cheap to reuse: one per zone and purpose (rows call these a lot). */
+const zoneFormats = new Map<string, Intl.DateTimeFormat>();
+
+function zoneFormat(timeZone: string, purpose: "parts" | "abbrev"): Intl.DateTimeFormat {
+  const key = `${purpose}|${timeZone}`;
+  let format = zoneFormats.get(key);
+  if (!format) {
+    format =
+      purpose === "parts"
+        ? new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+        : new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "short" });
+    zoneFormats.set(key, format);
+  }
+  return format;
+}
+
 /** Format an instant in a club's zone: { weekday: "Tue", date: "Oct 6", time: "5:00 AM" }. */
 export function formatInZone(d: Date, timeZone: string): { weekday: string; date: string; time: string } {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).formatToParts(d);
+  const parts = zoneFormat(timeZone, "parts").formatToParts(d);
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
   return { weekday: get("weekday"), date: `${get("month")} ${get("day")}`, time: `${get("hour")}:${get("minute")} ${get("dayPeriod")}` };
 }
@@ -127,7 +136,7 @@ export function formatInZone(d: Date, timeZone: string): { weekday: string; date
 /** Short zone label for a club zone at a given instant: "ET", "PT", "UK". */
 export function zoneAbbrev(timeZone: string, at: Date = new Date()): string {
   if (timeZone === "Europe/London") return "UK"; // reads better than "GMT+1" (critique L4)
-  const name = new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "short" })
+  const name = zoneFormat(timeZone, "abbrev")
     .formatToParts(at)
     .find((p) => p.type === "timeZoneName")?.value;
   if (!name) return "";

@@ -23,16 +23,27 @@ interface Wall {
   minute: number;
 }
 
+/**
+ * One formatter per time zone. Building an Intl.DateTimeFormat is slow and this runs for every
+ * class on screen, so a fresh one per call cost about 15 s of main-thread time loading a city.
+ */
+const wallFormats = new Map<string, Intl.DateTimeFormat>();
+
 function wallTime(d: Date, timeZone: string): Wall {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    hourCycle: "h23",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).formatToParts(d);
+  let format = wallFormats.get(timeZone);
+  if (!format) {
+    format = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    wallFormats.set(timeZone, format);
+  }
+  const parts = format.formatToParts(d);
   const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
   return { year: get("year"), month: get("month"), day: get("day"), hour: get("hour"), minute: get("minute") };
 }
@@ -86,13 +97,21 @@ export function bookingOpensAtWallClock(startLocal: string, timeZone: string): D
  * Best estimate for display and reminders: the earlier of the two
  * interpretations (never remind too late), flagged approximate when they differ.
  */
+/** Results per class: the window is pure, and the agenda asks again on every render. */
+const windows = new Map<string, { opensAt: Date; approximate: boolean }>();
+
 export function bookingWindow(
   startUtc: string,
   startLocal: string,
   timeZone: string,
 ): { opensAt: Date; approximate: boolean } {
+  const key = `${startUtc}|${startLocal}|${timeZone}`;
+  const known = windows.get(key);
+  if (known) return { opensAt: new Date(known.opensAt), approximate: known.approximate };
   const absolute = bookingOpensAt(startUtc, timeZone);
   const wall = bookingOpensAtWallClock(startLocal, timeZone);
   const approximate = Math.abs(absolute.getTime() - wall.getTime()) >= 60_000;
-  return { opensAt: absolute <= wall ? absolute : wall, approximate };
+  const result = { opensAt: absolute <= wall ? absolute : wall, approximate };
+  windows.set(key, result);
+  return { opensAt: new Date(result.opensAt), approximate };
 }
